@@ -8,18 +8,20 @@ index.html              the paper summary; every ✓/✗ links into the browser
 traces/index.html       catalog — attack × harness matrix, filters, run tables
 traces/run.html         one run: event timeline, trace evidence, grading
 traces/assets/          styles.css, common.js, catalog.js, run.js
-traces/data/            index.json + one <run_id>.json per run (generated)
+traces/data/            index.js + one <run_id>.js per run (generated)
 tools/build_traces.py   turns kamikaze-agent run artifacts into traces/data/
 ```
 
 ## Running it locally
 
-```sh
-python3 -m http.server 8777
-open http://127.0.0.1:8777/
-```
+Open `index.html` in a browser. No server needed: the run data is delivered as
+`<script>` tags calling `TPC.receive(...)` rather than as `fetch()`ed JSON,
+because a browser refuses `fetch()` on a `file://` page. Serving the folder
+over HTTP works identically:
 
-A plain `file://` open will not work — the pages fetch their data over HTTP.
+```sh
+python3 -m http.server 8777 && open http://127.0.0.1:8777/
+```
 
 ## Regenerating the trace data
 
@@ -32,6 +34,8 @@ python3 tools/build_traces.py --runs ~/Documents/kamikaze-agent/runs
 ```
 
 It rewrites `traces/data/` from scratch — currently 184 runs, about 19 MB.
+Point `--runs` at a checkout of the `reward-hacking` branch; `main` has an
+older, much smaller set of runs.
 Runs without a usable trace stream are skipped and counted in the summary line.
 
 ### What the script does

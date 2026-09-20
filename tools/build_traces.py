@@ -3,8 +3,12 @@
 
     python3 tools/build_traces.py --runs ~/Documents/kamikaze-agent/runs
 
-Writes traces/data/index.json (one row per run, the catalog payload) and
-traces/data/<run_id>.json (the full normalized trace, fetched on demand).
+Writes traces/data/index.js (one row per run, the catalog payload) and
+traces/data/<run_id>.js (the full normalized trace, loaded on demand).
+
+The payloads are JSON wrapped in a TPC.receive(...) call rather than plain
+.json files, because the viewer has to work when the pages are opened straight
+from disk: a browser blocks fetch() on file:// but still loads a <script src>.
 
 The four harnesses each emit their own stream format; everything is
 normalized here so run.js only ever sees one event shape:
@@ -149,6 +153,13 @@ def iso(value):
         return datetime.fromtimestamp(seconds, timezone.utc).isoformat(
             timespec="seconds").replace("+00:00", "Z")
     return str(value)
+
+
+def write_payload(out_dir, key, payload):
+    """One data file, as a script the viewer can load from disk or a server."""
+    body = json.dumps(payload, separators=(",", ":"))
+    (out_dir / f"{key}.js").write_text(
+        f"TPC.receive({json.dumps(key)},{body});\n", encoding="utf-8")
 
 
 def elapsed_for(run):
@@ -1055,7 +1066,7 @@ def main():
     runs_dir = Path(os.path.expanduser(args.runs))
     out_dir = Path(os.path.expanduser(args.out))
     out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob("*.json"):
+    for stale in list(out_dir.glob("*.js")) + list(out_dir.glob("*.json")):
         stale.unlink()
 
     rows, skipped = [], 0
@@ -1071,8 +1082,7 @@ def main():
             continue
         row, detail = built
         rows.append(row)
-        (out_dir / f"{row['run_id']}.json").write_text(
-            json.dumps(detail, separators=(",", ":")), encoding="utf-8")
+        write_payload(out_dir, row["run_id"], detail)
 
     order = {name: i for i, name in enumerate(GROUP_ORDER)}
     rank = {"tampered": 0, "clean": 1, "inconclusive": 2}
@@ -1085,10 +1095,9 @@ def main():
         "group_order": GROUP_ORDER,
         "runs": rows,
     }
-    (out_dir / "index.json").write_text(json.dumps(index, separators=(",", ":")),
-                                        encoding="utf-8")
+    write_payload(out_dir, "index", index)
 
-    total = sum(f.stat().st_size for f in out_dir.glob("*.json"))
+    total = sum(f.stat().st_size for f in out_dir.glob("*.js"))
     counts = {}
     for row in rows:
         counts[row["verdict"]] = counts.get(row["verdict"], 0) + 1

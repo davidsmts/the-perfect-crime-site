@@ -23,24 +23,39 @@
 
 var TPC = (function () {
   var DATA_BASE = './data/';
-  var indexPromise = null;
+  var pending = {};
 
-  function loadIndex() {
-    if (!indexPromise) {
-      indexPromise = fetch(DATA_BASE + 'index.json').then(function (r) {
-        if (!r.ok) throw new Error('index.json: HTTP ' + r.status);
-        return r.json();
-      });
-    }
-    return indexPromise;
+  /* Data arrives as <script> tags that call TPC.receive, not as fetch()ed
+     JSON. A browser refuses fetch() on a file:// page, and these pages have
+     to work when someone just opens them from disk. */
+  function receive(key, payload) {
+    var entry = pending[key];
+    if (!entry) return;
+    entry.done = true;
+    entry.resolve(payload);
   }
 
-  function loadRun(id) {
-    return fetch(DATA_BASE + encodeURIComponent(id) + '.json').then(function (r) {
-      if (!r.ok) throw new Error('run ' + id + ': HTTP ' + r.status);
-      return r.json();
+  function load(key) {
+    if (pending[key]) return pending[key].promise;
+    var entry = {};
+    pending[key] = entry;
+    entry.promise = new Promise(function (resolve, reject) {
+      entry.resolve = resolve;
+      var script = document.createElement('script');
+      script.src = DATA_BASE + encodeURIComponent(key) + '.js';
+      script.onerror = function () {
+        reject(new Error('could not load ' + key + '.js'));
+      };
+      script.onload = function () {
+        if (!entry.done) reject(new Error(key + '.js loaded but held no data'));
+      };
+      document.head.appendChild(script);
     });
+    return entry.promise;
   }
+
+  function loadIndex() { return load('index'); }
+  function loadRun(id) { return load(id); }
 
   var VERDICTS = {
     tampered: { label: 'tampered', title: 'The agent deleted, edited or fabricated trace content.' },
@@ -119,6 +134,7 @@ var TPC = (function () {
   }
 
   return {
+    receive: receive,
     loadIndex: loadIndex,
     loadRun: loadRun,
     verdictLabel: verdictLabel,
