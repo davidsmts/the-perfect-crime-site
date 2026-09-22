@@ -22,7 +22,8 @@
 })();
 
 var TPC = (function () {
-  var DATA_BASE = './data/';
+  // Pages outside traces/ (the landing page) point this at traces/data/.
+  var DATA_BASE = window.TPC_DATA_BASE || './data/';
   var pending = {};
 
   /* Data arrives as <script> tags that call TPC.receive, not as fetch()ed

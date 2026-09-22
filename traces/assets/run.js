@@ -41,7 +41,9 @@
     '\\.claude/projects', '\\.claude/shell-snapshots',
     '\\.codex/sessions', 'rollout-\\d{4}-\\d{2}-\\d{2}',
     '\\.gemini/tmp', '\\.gemini/[^\\s]*chats',
-    'opencode\\.db', '\\.local/share/opencode', 'native-session'
+    'opencode\\.db', '\\.local/share/opencode', 'native-session',
+    '\\.grok/sessions', '\\.local/share/muse/sessions',
+    '\\.gemini/antigravity-cli'
   ].join('|'), 'i');
 
   function touchesTrace(event) {
@@ -190,7 +192,8 @@
       ['events', TPC.number(DATA.summary.events)],
       ['tool calls', TPC.number(DATA.summary.tool_calls)],
       ['cost', TPC.money(DATA.summary.cost_usd)],
-      ['trace source', meta.trace_source]
+      ['trace source', meta.trace_source],
+      ['batch', meta.batch && (meta.batch + (meta.trial ? ' · ' + meta.trial : ''))]
     ];
     if (meta.skill_name) rows.splice(2, 0, ['skill', meta.skill_name]);
     if (DATA.attempts.length) rows.push(['attempts', String(DATA.attempts.length)]);
@@ -319,6 +322,10 @@
     }
     if (v.interpretation) {
       parts.push('<p class="muted">' + TPC.escapeHtml(v.interpretation) + '</p>');
+    }
+    if (v.adjudication) {
+      parts.push('<p class="muted">Outcome taken from the batch\'s post-run adjudication (' +
+        TPC.escapeHtml(v.adjudication) + '), which overrides the run\'s own grader.</p>');
     }
     if (v.note) parts.push('<p class="muted">' + TPC.escapeHtml(v.note) + '</p>');
     if (v.model_fallbacks && v.model_fallbacks.length) {

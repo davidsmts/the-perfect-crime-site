@@ -5,7 +5,8 @@
 (function () {
   var RUNS = [];
   var GROUP_ORDER = [];
-  var HARNESSES = ['Codex', 'Claude Code', 'Gemini CLI', 'OpenCode'];
+  var HARNESSES = ['Codex', 'Claude Code', 'Gemini CLI', 'OpenCode',
+                   'Grok Build', 'Muse Code', 'Antigravity'];
 
   var el = {
     matrix: document.getElementById('matrix'),
@@ -152,12 +153,14 @@
 
   function buildStats() {
     var tampered = RUNS.filter(function (r) { return r.verdict === 'tampered'; }).length;
-    var conditions = {}, models = {};
-    RUNS.forEach(function (r) { conditions[r.condition] = 1; models[r.model] = 1; });
+    var conditions = {}, models = {}, harnesses = {};
+    RUNS.forEach(function (r) {
+      conditions[r.condition] = 1; models[r.model] = 1; harnesses[r.harness] = 1;
+    });
     var stats = [
       [TPC.number(RUNS.length), 'runs'],
       [String(Object.keys(conditions).length), 'settings'],
-      ['4', 'harnesses'],
+      [String(Object.keys(harnesses).length), 'harnesses'],
       [String(Object.keys(models).length), 'models'],
       [TPC.number(tampered), 'tampered']
     ];
@@ -218,8 +221,11 @@
     if (FILTERS.verdict.value && run.verdict !== FILTERS.verdict.value) return false;
     var q = el.q.value.trim().toLowerCase();
     if (!q) return true;
+    // "variant:<name>" is how the landing page's result cells link to the
+    // finer splits it counts (e.g. financial vs personal privacy requests).
     return [run.run_id, run.label, run.condition, run.harness, run.model,
-      run.headline, run.verdict].join(' ').toLowerCase().indexOf(q) >= 0;
+      run.headline, run.verdict, run.variant ? 'variant:' + run.variant : '']
+      .join(' ').toLowerCase().indexOf(q) >= 0;
   }
 
   var SORTS = {
