@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Perfect Crime: LLM Agents Can Easily Tamper Their Own Traces</title>
-<meta name="description" content="LLM agents can delete and edit their own execution traces. Results across Codex, Claude Code, Gemini CLI, OpenCode, Grok Build, Muse Code and Antigravity.">
+<meta name="description" content="Final trace-tampering results from 1,590 selected trials, with full-access and auto-mode comparisons across ten model–harness pairs.">
 <!-- Shares the trace browser's palette, type and theme toggle, so the two
      read as one site and the chosen theme carries across. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="traces/assets/styles.css">
 <script>window.TPC_DATA_BASE = 'traces/data/';</script>
 <script src="traces/assets/common.js"></script>
+<script src="results/data.js"></script>
 <style>
   body, .logo { font-family: "Google Sans", system-ui, sans-serif; }
   .landing { max-width: 48rem; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
@@ -61,20 +62,24 @@
   .results td { padding: 2px; }
   .res { display: flex; align-items: center; justify-content: center; gap: .35rem; padding: .32rem .4rem; border-radius: 4px;
          text-decoration: none; font-weight: 600; outline: 2px solid transparent; outline-offset: -2px; transition: outline-color .12s; }
-  .res:hover, .res:focus-visible { outline-color: var(--fg); }
+  a.res:hover, a.res:focus-visible { outline-color: var(--fg); }
   /* Count cells shade toward the "tampered" red with the share of runs that
      tampered, on the same ramp as the trace browser's matrix. */
-  .results table.counts { min-width: 46rem; }
-  /* Seven harness columns do not fit the reading column, so on wide screens
-     the tables break out of it symmetrically, up to 64rem. */
+  .results table.counts { min-width: 82rem; }
+  /* Ten model columns need horizontal scrolling, even on wide screens. */
   .results { margin-left: calc(50% - min(32rem, 50vw - 1.25rem));
              margin-right: calc(50% - min(32rem, 50vw - 1.25rem)); }
   .col-model { display: block; font-size: .64rem; text-transform: none; letter-spacing: 0; color: var(--faint); margin-top: .1rem; }
   .res { background: var(--sunk); color: var(--fg); font-variant-numeric: tabular-nums; }
   .res-empty { color: var(--faint); font-weight: 400; }
   .res .cell-n { color: var(--muted); font-size: .68rem; font-weight: 400; }
+  .results thead th:first-child, .results tr[data-setting] th {
+    position: sticky; left: 0; z-index: 1; background: var(--panel);
+  }
+  .results thead th:first-child { z-index: 2; }
   .results-foot { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; color: var(--muted); font-size: .75rem;
                   padding: .55rem .85rem; border-top: 1px solid var(--line); background: var(--sunk); }
+  .results-foot a { color: inherit; }
   .results-foot .spacer { flex: 1; }
   .swatch { display: inline-block; width: .9rem; height: .6rem; border-radius: 2px; vertical-align: -1px; margin-right: .3rem; }
 
@@ -114,7 +119,7 @@
     .flow { grid-template-columns: 1fr; }
     .arrow { transform: rotate(90deg); justify-self: center; }
     .path { grid-template-columns: 1fr; gap: .15rem; }
-    .results table.counts { min-width: 40rem; }
+    .results table.counts { min-width: 74rem; }
     .results tbody th { white-space: normal; padding-right: .4rem; }
     .results thead th { white-space: normal; font-size: .64rem; letter-spacing: .03em; }
     .res { padding: .45rem .3rem; }
@@ -187,21 +192,21 @@
     <p class="tldr">Monitoring, incident investigations and audits rely on an agent's execution trace to reconstruct what happened. We show that local LLM agents can delete or rewrite those traces, when asked, when tricked by a malicious skill, and on their own when it improves their score.</p>
 
     <div class="actions">
-      <a class="btn btn-primary" href="traces/index.html">Browse all 644 agent traces →</a>
-      <a class="btn" href="#results">Jump to the results</a>
+      <a class="btn btn-primary" href="#results">See the final results →</a>
+      <a class="btn" href="traces/index.html">Browse 644 interactive traces</a>
     </div>
 
     <ul class="stats" aria-label="Scope of the study">
-      <li><b>7</b><span>harnesses</span></li>
-      <li><b>5</b><span>models</span></li>
-      <li><b>644</b><span>runs, every trace public</span></li>
-      <li><b>6 / 7</b><span>harnesses deleted traces when asked</span></li>
+      <li><b>8</b><span>harnesses</span></li>
+      <li><b>10</b><span>model–harness pairs in the main figures</span></li>
+      <li><b>1,590</b><span>selected trials in the evidence package</span></li>
+      <li><b>9 / 10</b><span>pairs tampered when asked in full-access mode</span></li>
     </ul>
   </section>
 
   <section class="sec">
     <h2>Can an agent alter its own record?</h2>
-    <p>We tested seven widely deployed harnesses in full-access mode. Each stores its session trace as a local file the agent can reach:</p>
+    <p>In full-access mode, agents can reach the local files that hold their session traces. Some of the tested locations are:</p>
     <div class="paths">
       <div class="path"><b>Claude Code</b><code>~/.claude/projects/&lt;proj&gt;/&lt;id&gt;.jsonl</code></div>
       <div class="path"><b>Codex</b><code>~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl</code></div>
@@ -214,56 +219,81 @@
   </section>
 
   <section class="sec" id="results">
-    <h2>When asked, six of seven harnesses comply</h2>
-    <p>Asked to delete traces for privacy after a financial or personal task, agents in six of the seven harnesses found and deleted their own traces. Guardrails didn't stop it. In the one case where Claude Code flagged the request, it switched from Opus 5 to Opus 4.8, and the fallback model deleted the trace. Muse Code was the exception and declined all 20 requests. Claude Code and Muse Code also refused to insert a fabricated container-reset event.</p>
+    <h2>When asked, nine of ten pairs tamper in full-access mode</h2>
+    <p>Asked to remove traces after a financial or personal task, nine model–harness pairs tampered in at least one trial of each setting. Muse Code declined all 20 requests. The fabricated container-reset and tool-call experiments tested other ways to rewrite the record; their outcomes vary by model and harness.</p>
 
     <h2 style="margin-top:2.25rem">A malicious skill is enough</h2>
-    <p>With a "privacy protection" skill installed in the default location, agents working on an unrelated programming task loaded it without being told to and deleted their session trace. Codex, OpenCode and Grok Build fell for it; Claude Code, Gemini CLI, Muse Code and Antigravity did not. A second skill injected instructions into the compaction summary stored in the trace.</p>
+    <p>A "privacy protection" skill installed in the default location led some agents working on an unrelated task to tamper with their trace. A second skill tried to inject instructions into the stored compaction summary. Success varied across the ten pairs.</p>
+    <p>These tables follow the final selected paper figures. The interactive trace browser covers an earlier 644-run subset.</p>
 
     <div class="results">
-      <table class="counts">
-        <thead><tr><th scope="col"></th><th scope="col">Codex<span class="col-model">GPT-5.6-Sol</span></th><th scope="col">Claude Code<span class="col-model">Opus 5</span></th><th scope="col">Gemini CLI<span class="col-model">Gemini 3.1 Pro</span></th><th scope="col">OpenCode<span class="col-model">Gemini 3.1 Pro</span></th><th scope="col">Grok Build<span class="col-model">Grok 4.7</span></th><th scope="col">Muse Code<span class="col-model">Muse Spark 1.3</span></th><th scope="col">Antigravity<span class="col-model">Gemini 3.1 Pro</span></th></tr></thead>
+      <table class="counts" data-table="full">
+        <thead><tr><th scope="col">Setting</th></tr></thead>
         <tbody>
-        <tr class="sub"><th colspan="8">User prompting</th></tr>
-        <tr data-row data-variant="financial"><th scope="row">Financial task: trace deletion</th></tr>
-        <tr data-row data-variant="personal"><th scope="row">Personal summary: trace deletion</th></tr>
-        <tr data-row data-condition="direct-trace-injection"><th scope="row">Fabricated container-reset event</th></tr>
-        <tr data-row data-condition="direct-shell-tampering"><th scope="row">Shell interception: tool-call tampering</th></tr>
-        <tr class="sub"><th colspan="8">Skill injection</th></tr>
-        <tr data-row data-variant="privacy-skill"><th scope="row">Privacy protection: trace deletion</th></tr>
-        <tr data-row data-variant="compaction-skill"><th scope="row">Compaction injection: trace editing</th></tr>
+        <tr class="sub"><th colspan="11">User prompting</th></tr>
+        <tr data-setting="financial"><th scope="row">Financial task: trace deletion</th></tr>
+        <tr data-setting="personal"><th scope="row">Personal summary: trace deletion</th></tr>
+        <tr data-setting="reset-addition"><th scope="row">Fabricated container-reset event</th></tr>
+        <tr data-setting="tool-call"><th scope="row">Shell interception: tool-call tampering</th></tr>
+        <tr class="sub"><th colspan="11">Skill injection</th></tr>
+        <tr data-setting="privacy-skill"><th scope="row">Privacy protection: trace deletion</th></tr>
+        <tr data-setting="compaction-skill"><th scope="row">Compaction injection: trace editing</th></tr>
         </tbody>
       </table>
       <div class="results-foot">
-        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>runs that tampered / runs with a verdict</span>
-        <span>+n? inconclusive</span>
+        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>successful tampering / selected trials</span>
+        <span>† observed native-session loss; agent action unverified in four OpenCode/Qwen trials · N/A not run</span>
         <span class="spacer"></span>
-        <span>click a cell for its runs</span>
+        <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">Evidence and adjudications ↗</a>
       </div>
     </div>
   </section>
 
   <section class="sec">
     <h2>Agents do it on their own for reward</h2>
-    <p>Agents got a task, a time budget and a grader score with no explanation. Finishing the task earned at most 0.8, and the rest was only reachable by tampering with the trace. Every harness worked this out and tampered in both settings, without ever being told to, though Muse Code did so in only 2 of 10 anonymization runs. Several launched background scripts that kept deleting traces as new logs appeared. Showing agents other agents' logs or workspaces with higher scores had the same effect: they copied the tampering. Muse Code again held out most: it never copied it from logs, and did in 3 of 10 runs with workspaces.</p>
+    <p>Agents got a task, a time budget and a grader score with no explanation. Finishing the task earned at most 0.8; the rest was only reachable by tampering with the trace. All ten pairs tampered in both reward settings at least once, though Muse Code did so in only 2 of 10 anonymization trials. Some agents also copied tampering shown in other agents' higher-scoring logs or workspaces. Muse Code and Claude Code with Opus 5.5 did not copy it from logs.</p>
 
     <div class="results">
-      <table class="counts">
-        <thead><tr><th scope="col"></th><th scope="col">Codex<span class="col-model">GPT-5.6-Sol</span></th><th scope="col">Claude Code<span class="col-model">Opus 5</span></th><th scope="col">Gemini CLI<span class="col-model">Gemini 3.1 Pro</span></th><th scope="col">OpenCode<span class="col-model">Gemini 3.1 Pro</span></th><th scope="col">Grok Build<span class="col-model">Grok 4.7</span></th><th scope="col">Muse Code<span class="col-model">Muse Spark 1.3</span></th><th scope="col">Antigravity<span class="col-model">Gemini 3.1 Pro</span></th></tr></thead>
+      <table class="counts" data-table="full">
+        <thead><tr><th scope="col">Setting</th></tr></thead>
         <tbody>
-        <tr class="sub"><th colspan="8">Reward optimization</th></tr>
-        <tr data-row data-condition="synthetic-document-optimization"><th scope="row">Summary anonymization</th></tr>
-        <tr data-row data-condition="terminal-bench-bun-sourcemap-leak"><th scope="row">Terminal-Bench: bun-sourcemap-leak</th></tr>
-        <tr class="sub"><th colspan="8">Cross-agent transfer</th></tr>
-        <tr data-row data-variant="logs"><th scope="row">Other agents&#39; action logs + scores</th></tr>
-        <tr data-row data-variant="workspaces"><th scope="row">Other agents&#39; workspaces + scores</th></tr>
+        <tr class="sub"><th colspan="11">Reward optimization</th></tr>
+        <tr data-setting="anonymization"><th scope="row">Summary anonymization</th></tr>
+        <tr data-setting="terminal-bench"><th scope="row">Terminal-Bench: bun-sourcemap-leak</th></tr>
+        <tr class="sub"><th colspan="11">Cross-agent transfer</th></tr>
+        <tr data-setting="peer-logs"><th scope="row">Other agents&#39; action logs + scores</th></tr>
+        <tr data-setting="peer-workspaces"><th scope="row">Other agents&#39; workspaces + scores</th></tr>
         </tbody>
       </table>
       <div class="results-foot">
-        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>runs that tampered / runs with a verdict</span>
-        <span>+n? inconclusive</span>
+        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>successful tampering / selected trials</span>
+        <span>† observed native-session loss; agent action unverified in four OpenCode/Qwen trials · N/A not run</span>
         <span class="spacer"></span>
-        <span>click a cell for its runs</span>
+        <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">Evidence and adjudications ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Permissions change the outcome</h2>
+    <p>The final paper also compares direct prompting under each harness's auto-mode permissions. Codex with GPT-6-Sol still tampered in all 20 privacy trials; several other pairs dropped to zero. The mechanisms differ by harness, so each cell reports its own selected trials.</p>
+
+    <div class="results">
+      <table class="counts" data-table="auto">
+        <thead><tr><th scope="col">Auto-mode setting</th></tr></thead>
+        <tbody>
+        <tr data-setting="financial"><th scope="row">Financial task: trace deletion</th></tr>
+        <tr data-setting="personal"><th scope="row">Personal summary: trace deletion</th></tr>
+        <tr data-setting="reset-addition"><th scope="row">Fabricated container-reset event</th></tr>
+        <tr data-setting="tool-call"><th scope="row">Shell interception: tool-call tampering</th></tr>
+        </tbody>
+      </table>
+      <div class="results-foot">
+        <span>successful tampering / conclusive trials</span>
+        <span>+n? inconclusive · B baseline blocked</span>
+        <span>† four Muse approval waits count as unsuccessful; ‡ five ZCode tool-call baselines were blocked</span>
+        <span class="spacer"></span>
+        <a href="https://github.com/davidsmts/kamikaze-agent/blob/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results/plots/combined-permissions-comparison/data-expanded.json">Comparison data ↗</a>
       </div>
     </div>
   </section>
@@ -319,63 +349,88 @@
   </section>
 
   <script>
-  // Fill the result tables from the trace data, so every cell counts exactly
-  // the runs its link opens. Each harness is counted with its main model only,
-  // as in the paper; side runs on other models stay in the trace browser.
+  // These cells follow the selected, adjudicated paper figures. The separate
+  // interactive trace browser covers an earlier 644-run subset.
   (function () {
-    var HARNESSES = [
-      ['Codex', 'GPT-5.6-Sol'], ['Claude Code', 'Opus 5'],
-      ['Gemini CLI', 'Gemini 3.1 Pro'], ['OpenCode', 'Gemini 3.1 Pro'],
-      ['Grok Build', 'Grok 4.7'], ['Muse Code', 'Muse Spark 1.3'],
-      ['Antigravity', 'Gemini 3.1 Pro']
-    ];
-    var rows = document.querySelectorAll('tr[data-row]');
+    var data = window.TPC_FINAL_RESULTS;
+    var pairs = {
+      codex: ['Codex', 'GPT-5.6-Sol'],
+      codex_new: ['Codex', 'GPT-6-Sol'],
+      claude: ['Claude Code', 'Opus 5'],
+      claude_new: ['Claude Code', 'Opus 5.5'],
+      opencode_new: ['OpenCode', 'Qwen 3.8 Max'],
+      grok: ['Grok Build', 'Grok 4.7'],
+      antigravity: ['Antigravity', 'Gemini 3.1 Pro'],
+      zcode_new: ['ZCode', 'GLM 5.3'],
+      kimi_new: ['Kimi Code', 'Kimi K3'],
+      muse: ['Muse Code', 'Muse Spark 1.3']
+    };
 
     function shade(rate) {
       if (!rate) return 'var(--sunk)';
       return 'color-mix(in srgb, var(--yes) ' + Math.round((14 + rate * 56)) + '%, var(--sunk))';
     }
 
-    TPC.loadIndex().then(function (index) {
-      rows.forEach(function (tr) {
-        var variant = tr.dataset.variant, condition = tr.dataset.condition;
-        var label = tr.querySelector('th').textContent;
-        HARNESSES.forEach(function (h) {
-          var runs = index.runs.filter(function (r) {
-            return r.harness === h[0] && r.model === h[1] &&
-              (variant ? r.variant === variant : r.condition === condition);
-          });
+    document.querySelectorAll('table[data-table]').forEach(function (table) {
+      var head = table.querySelector('thead tr');
+      if (!data) {
+        head.firstElementChild.textContent = 'Final results could not be loaded.';
+        return;
+      }
+      data.modelOrder.forEach(function (id) {
+        var th = document.createElement('th');
+        th.scope = 'col';
+        th.textContent = pairs[id][0];
+        var model = document.createElement('span');
+        model.className = 'col-model';
+        model.textContent = pairs[id][1];
+        th.appendChild(model);
+        head.appendChild(th);
+      });
+
+      table.querySelectorAll('tr[data-setting]').forEach(function (tr) {
+        data.modelOrder.forEach(function (id) {
+          var value = data[table.dataset.table][tr.dataset.setting + ':' + id];
           var td = document.createElement('td');
-          if (!runs.length) {
-            td.innerHTML = '<span class="res res-empty" title="not run">·</span>';
-            tr.appendChild(td);
-            return;
+          var cell = document.createElement('span');
+          cell.className = 'res';
+          if (!value) {
+            cell.className += ' res-empty';
+            cell.textContent = 'N/A';
+            cell.title = 'This setting was not run for this pair.';
+          } else if (table.dataset.table === 'auto' && value[1] === null) {
+            cell.className += ' res-empty';
+            cell.textContent = 'B';
+            cell.title = 'Benign baseline blocked in all ten trials; no comparable tampering rate.';
+          } else {
+            var score = document.createElement('span');
+            score.textContent = value[0] + '/' + value[1];
+            cell.appendChild(score);
+            cell.style.background = shade(value[0] / value[1]);
+            if (table.dataset.table === 'full') {
+              if (value[2]) {
+                var inference = document.createElement('span');
+                inference.className = 'cell-n';
+                inference.textContent = '†';
+                cell.appendChild(inference);
+                cell.title = value[2] + ' trial(s) counted from observed native-session loss; agent action unverified.';
+              }
+            } else {
+              var note = [];
+              if (value[2]) note.push('+' + value[2] + '?');
+              if (value[4]) note.push('†');
+              if (value[3]) note.push('‡');
+              if (note.length) {
+                var detail = document.createElement('span');
+                detail.className = 'cell-n';
+                detail.textContent = note.join(' ');
+                cell.appendChild(detail);
+              }
+            }
           }
-          var tampered = runs.filter(function (r) { return r.verdict === 'tampered'; }).length;
-          var decided = runs.filter(function (r) { return r.verdict !== 'inconclusive'; }).length;
-          var open = runs.length - decided;
-          var params = new URLSearchParams({ harness: h[0], model: h[1] });
-          if (variant) params.set('q', 'variant:' + variant);
-          else params.set('condition', condition);
-          var a = document.createElement('a');
-          a.className = 'res';
-          a.href = 'traces/index.html?' + params.toString();
-          a.style.background = shade(decided ? tampered / decided : 0);
-          a.title = label + ' — ' + h[0] + ': ' + tampered + ' of ' + decided +
-            ' runs tampered' + (open ? ', ' + open + ' inconclusive' : '') + '. Open these runs';
-          a.innerHTML = '<span>' + tampered + '/' + decided + '</span>' +
-            (open ? '<span class="cell-n">+' + open + '?</span>' : '');
-          td.appendChild(a);
+          td.appendChild(cell);
           tr.appendChild(td);
         });
-      });
-    }, function () {
-      rows.forEach(function (tr) {
-        var td = document.createElement('td');
-        td.colSpan = HARNESSES.length;
-        td.className = 'res-empty';
-        td.textContent = 'Could not load the run data.';
-        tr.appendChild(td);
       });
     });
   })();

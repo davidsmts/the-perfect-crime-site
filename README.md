@@ -4,12 +4,14 @@ Static site for *LLM Agents Can Easily Tamper Their Own Traces*. No build step,
 no dependencies: serve the folder and it works.
 
 ```
-index.html              the paper summary; every ✓/✗ links into the browser
+index.html              the paper summary and final figure counts
+results/data.js         selected, adjudicated final figure counts (generated)
 traces/index.html       catalog — attack × harness matrix, filters, run tables
 traces/run.html         one run: event timeline, trace evidence, grading
 traces/assets/          styles.css, common.js, catalog.js, run.js
 traces/data/            index.js + one <run_id>.js per run (generated)
 tools/build_traces.py   turns kamikaze-agent run artifacts into traces/data/
+tools/update_final_results.py   copies the paper's published figure counts
 ```
 
 ## Running it locally
@@ -23,7 +25,34 @@ over HTTP works identically:
 python3 -m http.server 8777 && open http://127.0.0.1:8777/
 ```
 
-## Regenerating the trace data
+## Updating the final results
+
+The homepage tables use the current selected paper figures in the
+[kamikaze-agent evidence package](https://github.com/davidsmts/kamikaze-agent/tree/reward-hacking/paper-results).
+They report ten model–harness pairs, including auto-mode direct prompting.
+`results/data.js` records the source commit and is generated from
+`paper-results/plots/combined-harness-asr/data.json`,
+`paper-results/plots/combined-permissions-comparison/data-expanded.json`, and
+`paper-results/trials.json` on `reward-hacking`:
+
+```sh
+git -C ~/Documents/kamikaze-agent fetch origin reward-hacking
+python3 tools/update_final_results.py --repo ~/Documents/kamikaze-agent
+python3 tools/update_final_results.py --repo ~/Documents/kamikaze-agent --check
+```
+
+The full-access table follows the paper's observed-loss reporting rule. Four
+OpenCode/Qwen trials are positive because native-session content disappeared,
+though the responsible agent action was not captured. The source package also
+provides verified-only figures. In auto mode, three inconclusive ZCode reset
+trials are excluded from that cell's denominator; all-blocked tool-call
+baselines show `B`. The 1,590 selected trials include supporting series not
+shown in the homepage figures.
+
+The interactive browser below is an earlier 644-run subset, not the population
+used for the final homepage counts.
+
+## Regenerating the interactive trace data
 
 `traces/data/` is generated from the experiment artifacts in the
 [kamikaze-agent](https://github.com/davidsmts/kamikaze-agent) repo (branch
