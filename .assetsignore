@@ -1,0 +1,13 @@
+# Only publish files used by the static site.
+.git
+**/.git
+.gitignore
+.assetsignore
+README.md
+tools/
+results/
+node_modules/
+.wrangler/
+**/.DS_Store
+**/__pycache__/
+**/*.pyc
