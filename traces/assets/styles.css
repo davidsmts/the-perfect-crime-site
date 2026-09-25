@@ -86,7 +86,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
   text-decoration: none;
 }
 
-.logo-sub { color: var(--muted); font-size: .85rem; text-decoration: none; }
+.logo-sub { color: var(--muted); font: 400 .95rem/1 "Newsreader", Georgia, serif; text-decoration: none; }
 .topbar-spacer { flex: 1; }
 
 .theme-toggle {
