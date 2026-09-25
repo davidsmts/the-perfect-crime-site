@@ -61,6 +61,7 @@
                         font: 500 clamp(2rem, 3.6vw, 2.65rem)/1.08 "Newsreader", Georgia, serif;
                         letter-spacing: -.018em; }
   .sec { padding: 2.75rem 0 .5rem; }
+  #attack-settings > .section-heading + .sec { padding-top: 0; }
   .sec h2, .sec h3 { font: 500 1.65rem/1.18 "Newsreader", Georgia, serif; margin: 0 0 1rem; }
   .sec h3:not(:first-child) { margin-top: 5rem; padding-top: 0; }
   .paper-section > .sec + .sec { margin-top: 3.75rem; }
@@ -202,8 +203,8 @@
     </a>
     <nav class="site-nav" aria-label="Main navigation">
       <div class="nav-sections">
-        <a href="#method">Method</a>
         <a href="#attack-settings">Tampering</a>
+        <a href="#method">Method</a>
         <a href="#trace-access">Session files</a>
         <a href="#off-host-logging">Model traffic</a>
       </div>
@@ -239,25 +240,12 @@
 
   </section>
 
-  <section class="paper-section" id="method" aria-labelledby="method-heading">
-    <header class="section-heading">
-      <h2 id="method-heading">How we tested trace tampering</h2>
-    </header>
-    <p class="study-lede">We ran ten model–harness pairs in containers and kept an independent log outside the agent environment. We tested four routes to tampering: a direct request, instructions hidden in a skill, a higher score for shortening the trace, and examples from other agents. Each setting was repeated ten times.</p>
-
-    <figure class="paper-figure trace-example">
-      <div class="paper-chart"><img src="assets/paper-figure-5.png" alt="A recorded Codex trial in which an installed privacy skill turns an ordinary Python client task into deletion of the agent's own session trace. An independent filesystem observer confirms the deletion." width="1000" height="560"></div>
-      <figcaption><b>One trial, from instruction to deletion.</b> The user asked for a Python client and did not ask the agent to alter its record. The full run includes the native trace, independent filesystem evidence, task, and grading. <a href="traces/run.html?id=11c4b7c81305400e90861223c428575c">Open this trace →</a></figcaption>
-    </figure>
-  </section>
-
   <section class="paper-section" id="attack-settings" aria-labelledby="attack-settings-heading">
     <header class="section-heading">
-      <h2 id="attack-settings-heading">Tampering by request, skill, reward, and example</h2>
+      <h2 id="attack-settings-heading">When asked, nine of ten pairs tamper in full-access mode</h2>
     </header>
 
   <section class="sec">
-    <h3>When asked, nine of ten pairs tamper in full-access mode</h3>
     <p>In the financial and personal-summary deletion tasks, nine model–harness pairs tampered in at least one of ten trials per task. Muse Code refused all 20 deletion requests. Fabricated reset events and tool-call manipulation exposed different boundaries: Claude Code, ZCode and Muse Code often refused to invent a reset event, while most other pairs wrote one.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-2.svg" alt="Paper Figure 2: attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation across ten model–harness pairs. Muse Code records zero successful trace deletions in both privacy tasks." width="480" height="153"></div>
@@ -296,6 +284,18 @@
     </figure>
   </section>
 
+  </section>
+
+  <section class="paper-section" id="method" aria-labelledby="method-heading">
+    <header class="section-heading">
+      <h2 id="method-heading">How we tested trace tampering</h2>
+    </header>
+    <p class="study-lede">We ran ten model–harness pairs in containers and kept an independent log outside the agent environment. We tested four routes to tampering: a direct request, instructions hidden in a skill, a higher score for shortening the trace, and examples from other agents. Each setting was repeated ten times.</p>
+
+    <figure class="paper-figure trace-example">
+      <div class="paper-chart"><img src="assets/paper-figure-5.png" alt="A recorded Codex trial in which an installed privacy skill turns an ordinary Python client task into deletion of the agent's own session trace. An independent filesystem observer confirms the deletion." width="1000" height="560"></div>
+      <figcaption><b>One trial, from instruction to deletion.</b> The user asked for a Python client and did not ask the agent to alter its record. The full run includes the native trace, independent filesystem evidence, task, and grading. <a href="traces/run.html?id=11c4b7c81305400e90861223c428575c">Open this trace →</a></figcaption>
+    </figure>
   </section>
 
   <section class="paper-section" id="trace-access" aria-labelledby="trace-access-heading">
