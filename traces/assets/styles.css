@@ -81,7 +81,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
 }
 
 .logo {
-  font: 600 .95rem/1 Georgia, serif;
+  font: 600 .95rem/1 "Newsreader", Georgia, serif;
   letter-spacing: .01em;
   text-decoration: none;
 }
@@ -110,7 +110,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
 .page-head { border-bottom: 1px solid var(--line); padding: 2rem 0 1.5rem; }
 
 .page-head h1 {
-  font: 400 1.7rem/1.2 Georgia, "Times New Roman", serif;
+  font: 500 2rem/1.1 "Newsreader", Georgia, serif;
   margin: 0 0 .35rem;
 }
 
@@ -118,7 +118,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
   color: var(--muted);
   max-width: 44rem;
   margin: 0 0 1.5rem;
-  font-size: .92rem;
+  font: 1.05rem/1.55 "Newsreader", Georgia, serif;
 }
 
 /* -------------------------------------------------------------- controls */
@@ -258,7 +258,7 @@ footer.site {
 
 .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: .9rem; box-shadow: var(--shadow); }
 
-.summary-title { font: 400 1.15rem/1.25 Georgia, serif; margin: 0 0 .2rem; }
+.summary-title { font: 500 1.25rem/1.2 "Newsreader", Georgia, serif; margin: 0 0 .2rem; }
 .summary-sub { color: var(--muted); font-size: .8rem; margin-bottom: .9rem; }
 
 .verdict-block { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: .75rem 0; margin-bottom: .8rem; }
