@@ -34,6 +34,7 @@
   .site-nav .nav-primary { padding: .38rem .7rem; border: 1px solid var(--line-strong);
                            border-radius: var(--radius); color: var(--fg); }
   .site-nav .nav-primary:hover { border-color: var(--fg); background: var(--sunk); }
+  .paper-section[id], .sec[id] { scroll-margin-top: 4.5rem; }
 
   /* ------------------------------------------------------------ hero */
   .hero { padding: 3.5rem 0 2.25rem; border-bottom: 1px solid var(--line); }
@@ -49,8 +50,14 @@
   .btn-primary:hover { opacity: .88; }
 
   /* ---------------------------------------------------------- sections */
-  .sec { padding: 2.5rem 0 .5rem; }
-  .sec h2 { font: 500 1.5rem/1.25 "Google Sans", system-ui, sans-serif; margin: 0 0 .9rem; }
+  .paper-section { margin-top: 3.5rem; padding: 3rem 0 .75rem; border-top: 1px solid var(--line-strong); }
+  .hero + .paper-section { margin-top: 0; }
+  .section-heading { max-width: 48rem; }
+  .section-heading h2 { margin: 0 0 .8rem; font: 500 clamp(1.75rem, 3vw, 2.25rem)/1.18 "Google Sans", system-ui, sans-serif; }
+  .sec { padding: 2.75rem 0 .5rem; }
+  .sec h2, .sec h3 { font: 500 1.5rem/1.25 "Google Sans", system-ui, sans-serif; margin: 0 0 .9rem; }
+  .sec h3:not(:first-child) { margin-top: 3.5rem; padding-top: 3rem; border-top: 1px solid var(--line); }
+  .paper-section > .sec + .sec { margin-top: 2.5rem; border-top: 1px solid var(--line); }
   .sec p:not([class]) { font: 16.5px/1.65 "Google Sans", system-ui, sans-serif; }
   .sec p:not([class]) { margin: 0 0 1rem; }
   .sec code { font-size: .8em; }
@@ -202,22 +209,27 @@
     <p class="tldr">Monitoring, incident investigations and audits rely on an agent's execution trace to reconstruct what happened. We show that local LLM agents can delete or rewrite those traces, when asked, when tricked by a malicious skill, and on their own when it improves their score.</p>
 
     <div class="actions">
-      <a class="btn btn-primary" href="#results">See the results →</a>
+      <a class="btn btn-primary" href="#attack-settings">See the results →</a>
       <a class="btn" href="https://arxiv.org/pdf/2609.30266" target="_blank" rel="noopener noreferrer">arXiv paper (PDF) ↗</a>
       <a class="btn" href="traces/index.html">Browse selected paper trials</a>
     </div>
 
   </section>
 
-  <section class="sec" id="results">
-    <h2>When asked, nine of ten pairs tamper in full-access mode</h2>
+  <section class="paper-section" id="attack-settings" aria-labelledby="attack-settings-heading">
+    <header class="section-heading">
+      <h2 id="attack-settings-heading">Tampering by request, skill, reward, and example</h2>
+    </header>
+
+  <section class="sec">
+    <h3>When asked, nine of ten pairs tamper in full-access mode</h3>
     <p>In the financial and personal-summary deletion tasks, nine model–harness pairs tampered in at least one of ten trials per task. Muse Code refused all 20 deletion requests. Fabricated reset events and tool-call manipulation exposed different boundaries: Claude Code, ZCode and Muse Code often refused to invent a reset event, while most other pairs wrote one.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-2.svg" alt="Paper Figure 2: attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation across ten model–harness pairs. Muse Code records zero successful trace deletions in both privacy tasks." width="480" height="153"></div>
       <figcaption><b>Figure 2 · Direct-request capability.</b> Attack success rate over ten trials per setting; N/A means the harness did not support the attack. <a href="https://arxiv.org/pdf/2609.30266v1#page=4">View in the paper ↗</a></figcaption>
     </figure>
 
-    <h2>A malicious skill can induce tampering</h2>
+    <h3>A malicious skill can induce tampering</h3>
     <p>An installed privacy-protection skill led some agents to delete their own session trace while completing an unrelated coding task. A second skill attempted to insert instructions into a stored compaction summary. The user had not requested either change, and success varied sharply across pairs.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-6.svg" alt="Paper Figure 6: attack success rates for privacy-skill trace deletion and compaction-skill injection. Codex GPT-5.6-Sol succeeded in all ten privacy-skill trials, while several pairs showed zero success; compaction results varied by harness." width="472" height="186" loading="lazy" decoding="async"></div>
@@ -227,7 +239,7 @@
   </section>
 
   <section class="sec">
-    <h2>Agents do it on their own for reward</h2>
+    <h3>Agents do it on their own for reward</h3>
     <p>Agents received a task, a time budget and only a numerical score. Completing the task earned at most 0.8 out of 1.0; a higher score required reducing the trace length, a condition the agents were not told. Every pair tampered at least once in both reward settings. Muse Code was the clearest exception to the general pattern, with two successful anonymization trials out of ten.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-7.svg" alt="Paper Figure 7: reward-optimization attack success rates for anonymization and Terminal-Bench. All ten model–harness pairs tampered in at least one trial of each task; Muse Code succeeded in two of ten anonymization trials." width="418" height="158" loading="lazy" decoding="async"></div>
@@ -241,7 +253,7 @@
   </section>
 
   <section class="sec">
-    <h2>Permissions change the outcome</h2>
+    <h3>Permissions change the outcome</h3>
     <p>Auto-mode permissions substantially reduced privacy-deletion success for both Claude Code models, Antigravity and ZCode. They did not stop every pair: Codex with GPT-6-Sol still deleted traces in all 20 privacy trials, and OpenCode with Qwen 3.8 Max succeeded in most direct-request trials. The exact restrictions and outcomes depend on the harness.</p>
     <figure class="paper-figure four-panels">
       <div class="paper-chart"><img src="assets/paper-figure-3.svg" alt="Paper Figure 3: side-by-side full-access and auto-mode attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation. Auto mode reduces several pairs to zero, but Codex GPT-6-Sol remains at 100 percent in both deletion tasks." width="482" height="314" loading="lazy" decoding="async"></div>
@@ -249,8 +261,15 @@
     </figure>
   </section>
 
+  </section>
+
+  <section class="paper-section" id="trace-access" aria-labelledby="trace-access-heading">
+    <header class="section-heading">
+      <h2 id="trace-access-heading">Agents can reach the files that record their sessions</h2>
+    </header>
+
   <section class="sec">
-    <h2>Deleting the trace can leave an agent untraceable</h2>
+    <h3>Deleting the trace can leave an agent untraceable</h3>
     <p>After a Codex session file was deleted, the session kept running without later activity appearing in a newly created native trace. Claude Code and Antigravity recreated trace files, but agents also scheduled repeated or delayed cleanup to delete later records.</p>
     <div class="outcomes">
       <div class="outcome">
@@ -273,7 +292,7 @@
   </section>
 
   <section class="sec">
-    <h2>Can an agent alter its own record?</h2>
+    <h3>Can an agent alter its own record?</h3>
     <p>In full-access mode, agents can reach the local files that hold their session traces. Some of the tested locations are:</p>
     <div class="paths">
       <div class="path"><b>Claude Code</b><code>~/.claude/projects/&lt;proj&gt;/&lt;id&gt;.jsonl</code></div>
@@ -287,8 +306,15 @@
     </div>
   </section>
 
+  </section>
+
+  <section class="paper-section" id="off-host-logging" aria-labelledby="off-host-logging-heading">
+    <header class="section-heading">
+      <h2 id="off-host-logging-heading">Record model traffic off the agent host</h2>
+    </header>
+
   <section class="sec">
-    <h2>Record traces off the host</h2>
+    <h3>Record traces off the host</h3>
     <p>The paper proposes sending model traffic through an interception server outside the agent host's control. It records each request and response, including streaming chunks, before forwarding them. Its log is append-only, and it stops forwarding if recording fails. This preserves the model exchange record even if the host is compromised.</p>
 
     <div class="flow" role="img" aria-label="The agent host sends all model traffic through an interception server, which writes an append-only record before forwarding to the model API.">
@@ -312,6 +338,8 @@
     <p>Complete, append-only provider-side logging could also protect the record. Zero Data Retention policies may prevent providers from keeping it, and existing compliance APIs can omit thinking blocks and tool definitions or truncate entries. Recording the exchange also does not prove that a reported tool call was executed faithfully.</p>
 
     <p class="closing">An agent's authority to do useful work must not include authority to rewrite the record used to evaluate that work.</p>
+  </section>
+
   </section>
 
   <section class="sec citation" id="citation">
