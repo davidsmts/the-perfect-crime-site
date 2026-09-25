@@ -75,16 +75,21 @@ GROUP_ORDER = ["User prompting", "Skill injection", "Reward optimization",
 HARNESS = {"claude": "Claude Code", "codex": "Codex",
            "gemini": "Gemini CLI", "opencode": "OpenCode",
            "grok": "Grok Build", "muse": "Muse Code",
-           "antigravity": "Antigravity"}
+           "antigravity": "Antigravity", "zcode": "ZCode",
+           "kimi": "Kimi Code"}
 
 MODELS = {
     "claude-opus-5": "Opus 5",
+    "claude-opus-5-5": "Opus 5.5",
     "claude-sonnet-5": "Sonnet 5",
     "gpt-5.6-sol": "GPT-5.6-Sol",
+    "gpt-6-sol": "GPT-6-Sol",
     "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
     "google/gemini-3.1-pro-preview": "Gemini 3.1 Pro",
     "deepseek/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
     "z-ai/glm-5.3": "GLM-5.3",
+    "moonshotai/kimi-k3": "Kimi K3",
+    "qwen/qwen3.8-max-0902": "Qwen 3.8 Max",
     "x-ai/grok-4.7": "Grok 4.7",
     "meta/muse-spark-1.3-contributor": "Muse Spark 1.3",
     "Gemini 3.1 Pro (High)": "Gemini 3.1 Pro",
@@ -174,7 +179,9 @@ def iso(value):
 
 def write_payload(out_dir, key, payload):
     """One data file, as a script the viewer can load from disk or a server."""
-    body = json.dumps(payload, separators=(",", ":"))
+    # Trace text can contain HTML. Escape '<' so a literal </script> inside a
+    # JSON string cannot terminate the script tag when the file is loaded.
+    body = json.dumps(payload, separators=(",", ":")).replace("<", "\\u003c")
     (out_dir / f"{key}.js").write_text(
         f"TPC.receive({json.dumps(key)},{body});\n", encoding="utf-8")
 
@@ -679,10 +686,159 @@ def norm_antigravity(path: Path):
     return events
 
 
+def norm_zcode(path: Path):
+    """ZCode stream-json events; combine token deltas into readable turns."""
+    events, chunks, channel = [], [], None
+
+    def flush():
+        nonlocal channel
+        if chunks:
+            value = "".join(chunks).strip()
+            if value:
+                events.append({"kind": channel, "ts": None,
+                               "text": clip(value)[0]})
+            chunks.clear()
+        channel = None
+
+    for rec in read_jsonl(path):
+        kind = rec.get("type")
+        payload = rec.get("payload") or {}
+        ts = iso(rec.get("timestamp"))
+        if kind == "model.streaming":
+            part = payload.get("kind")
+            if part in ("reasoning_delta", "text_delta"):
+                next_channel = "thought" if part == "reasoning_delta" else "text"
+                if channel != next_channel:
+                    flush()
+                    channel = next_channel
+                chunks.append(payload.get("delta") or "")
+            elif part == "tool_call":
+                flush()
+                name = payload.get("toolName") or "tool"
+                arguments = payload.get("input") or {}
+                events.append({
+                    "kind": "tool_call", "ts": ts,
+                    "id": payload.get("toolCallId"), "name": name,
+                    "title": summarize_tool_input(name, arguments),
+                    "input": clip(json.dumps(arguments, indent=1), MAX_OUTPUT)[0],
+                })
+            elif part in ("reasoning_end", "text_end", "finish"):
+                flush()
+        elif kind == "turn.started":
+            flush()
+            if payload.get("input"):
+                events.append({"kind": "user", "ts": ts,
+                               "text": clip(payload["input"])[0]})
+        elif kind == "tool.updated" and payload.get("kind") == "result":
+            flush()
+            result = payload.get("result") or {}
+            output = result.get("content") or result.get("output") or ""
+            events.append({
+                "kind": "tool_result", "ts": ts,
+                "id": payload.get("toolCallId"),
+                "is_error": result.get("success") is False,
+                "output": clip(output, MAX_OUTPUT)[0],
+            })
+        elif kind == "turn.completed":
+            flush()
+            events.append({"kind": "result", "ts": ts, "status": "finished",
+                           "text": "", "usage": payload.get("usage")})
+        elif kind == "turn.failed":
+            flush()
+            error = payload.get("error") or {}
+            events.append({"kind": "notice", "ts": ts, "flavor": "error",
+                           "title": "Turn failed",
+                           "detail": clip(error.get("message") or "", 600)[0]})
+    flush()
+    return events
+
+
+def _kimi_content(value):
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return _kimi_content(value.get("text") or value.get("content") or "")
+    if isinstance(value, list):
+        return "\n".join(filter(None, (_kimi_content(item) for item in value)))
+    return ""
+
+
+def norm_kimi(path: Path):
+    """Kimi Code ACP session updates wrapped by its paper trial driver."""
+    events, chunks, channel, tools = [], [], None, {}
+
+    def flush():
+        nonlocal channel
+        if chunks:
+            value = "".join(chunks).strip()
+            if value:
+                events.append({"kind": channel, "ts": None,
+                               "text": clip(value)[0]})
+            chunks.clear()
+        channel = None
+
+    for rec in read_jsonl(path):
+        rpc = rec.get("kimi_rpc") or {}
+        method = rpc.get("method")
+        if method == "session/prompt" and rec.get("direction") == "sent":
+            flush()
+            prompt = _kimi_content((rpc.get("params") or {}).get("prompt"))
+            if prompt:
+                events.append({"kind": "user", "ts": None,
+                               "text": clip(prompt)[0]})
+            continue
+        if method != "session/update":
+            continue
+        update = (rpc.get("params") or {}).get("update") or {}
+        kind = update.get("sessionUpdate")
+        if kind in ("agent_thought_chunk", "agent_message_chunk"):
+            next_channel = "thought" if kind == "agent_thought_chunk" else "text"
+            if channel != next_channel:
+                flush()
+                channel = next_channel
+            chunks.append(_kimi_content(update.get("content")))
+        elif kind == "tool_call":
+            flush()
+            key = update.get("toolCallId")
+            if key:
+                tools[key] = {"name": update.get("title") or "tool", "input": ""}
+        elif kind == "tool_call_update":
+            key = update.get("toolCallId")
+            if not key:
+                continue
+            tool = tools.setdefault(key, {"name": "tool", "input": ""})
+            status = update.get("status")
+            if status == "in_progress":
+                value = _kimi_content(update.get("content"))
+                if len(value) > len(tool["input"]):
+                    tool["input"] = value
+            elif status in ("completed", "failed", "error"):
+                flush()
+                raw_input = tool["input"]
+                try:
+                    arguments = json.loads(raw_input)
+                except (TypeError, ValueError):
+                    arguments = raw_input
+                events.append({
+                    "kind": "tool_call", "ts": None, "id": key,
+                    "name": tool["name"],
+                    "title": summarize_tool_input(tool["name"], arguments),
+                    "input": clip(raw_input, MAX_OUTPUT)[0],
+                })
+                output = update.get("rawOutput") or _kimi_content(update.get("content"))
+                events.append({"kind": "tool_result", "ts": None,
+                               "id": key, "is_error": status != "completed",
+                               "output": clip(output, MAX_OUTPUT)[0]})
+                tools.pop(key, None)
+    flush()
+    return events
+
+
 NORMALIZERS = {"claude": norm_claude, "codex": norm_codex,
                "gemini": norm_gemini, "opencode": norm_opencode,
                "grok": norm_grok, "muse": norm_muse,
-               "antigravity": norm_antigravity}
+               "antigravity": norm_antigravity, "zcode": norm_zcode,
+               "kimi": norm_kimi}
 
 
 # --------------------------------------------------------------------------
@@ -1122,7 +1278,7 @@ def variant_for(run, condition):
     return None
 
 
-def build_run(run_dir: Path, adjudicated=None):
+def build_run(run_dir: Path, adjudicated=None, allow_empty=False):
     run = read_json(run_dir / "run.json")
     if not run or run.get("kind") != "model":
         return None
@@ -1160,8 +1316,19 @@ def build_run(run_dir: Path, adjudicated=None):
         events = NATIVE_NORMALIZERS[client](run_dir / "native-session.jsonl")
         if events:
             source = "on-disk session file"
-    if not events:
+    if not events and not allow_empty:
         return None
+    if not events:
+        source = "no retained stream"
+        for stage in stages:
+            events.append({"kind": "stage", "ts": iso(stage.get("started_ns")),
+                           "name": stage.get("name"),
+                           "prompt": clip(stage.get("prompt") or "", 4000)[0],
+                           "exit_code": stage.get("exit_code")})
+        events.append({"kind": "notice", "ts": None, "flavor": "info",
+                       "title": "Trace stream unavailable",
+                       "detail": "The selected paper trial retains its reports and "
+                                 "observer evidence, but no readable live stream."})
 
     # Pair results back onto their calls so the UI can render one card each.
     calls = {}

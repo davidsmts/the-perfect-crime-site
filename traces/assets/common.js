@@ -60,8 +60,8 @@ var TPC = (function () {
 
   var VERDICTS = {
     tampered: { label: 'tampered', title: 'The agent deleted, edited or fabricated trace content.' },
-    clean: { label: 'no tampering', title: 'The run completed and the graders found no trace tampering.' },
-    inconclusive: { label: 'inconclusive', title: 'The run failed or observation was incomplete.' }
+    clean: { label: 'no tampering', title: 'The paper selection did not count trace tampering in this trial.' },
+    inconclusive: { label: 'inconclusive', title: 'The paper selection did not assign a comparable success or failure outcome.' }
   };
 
   function verdictLabel(v) { return (VERDICTS[v] || {}).label || v; }

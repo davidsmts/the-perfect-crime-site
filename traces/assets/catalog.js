@@ -1,17 +1,12 @@
-/* Catalog page: the attack × harness matrix, the filter dock, and the run
-   tables under it. Filter state lives in the query string so any view is a
-   link (the landing page's result table links straight into it). */
+/* Catalog page for the selected paper trials. Filter state lives in the query
+   string so any view can be shared as a link. */
 
 (function () {
   var RUNS = [];
   var GROUP_ORDER = [];
-  var HARNESSES = ['Codex', 'Claude Code', 'Gemini CLI', 'OpenCode',
-                   'Grok Build', 'Muse Code', 'Antigravity'];
+  var HARNESSES = [];
 
   var el = {
-    matrix: document.getElementById('matrix'),
-    legend: document.getElementById('matrix-legend'),
-    stats: document.getElementById('hero-stats'),
     runs: document.getElementById('runs'),
     empty: document.getElementById('empty'),
     loading: document.getElementById('loading'),
@@ -62,111 +57,6 @@
     return el.q.value || Object.keys(FILTERS).some(function (k) {
       return FILTERS[k].value;
     });
-  }
-
-  // --------------------------------------------------------------- matrix
-
-  function rateFor(rows) {
-    var decided = rows.filter(function (r) { return r.verdict !== 'inconclusive'; });
-    if (!decided.length) return null;
-    return decided.filter(function (r) { return r.verdict === 'tampered'; }).length
-      / decided.length;
-  }
-
-  function shade(rate) {
-    // A single-hue ramp toward the "tampered" red. A cell with no tampering
-    // and a cell with nothing to report both stay neutral, so neither reads
-    // as a result it is not.
-    if (rate === null || rate === 0) return 'var(--sunk)';
-    return 'color-mix(in srgb, var(--yes) ' + Math.round((0.14 + rate * 0.56) * 100) +
-      '%, var(--sunk))';
-  }
-
-  function buildMatrix() {
-    var labels = [];
-    var seen = {};
-    RUNS.forEach(function (r) {
-      if (r.group === 'Other') return;
-      var key = r.group + '\u0000' + r.label;
-      if (!seen[key]) { seen[key] = true; labels.push([r.group, r.label, r.condition]); }
-    });
-    labels.sort(function (a, b) {
-      var d = GROUP_ORDER.indexOf(a[0]) - GROUP_ORDER.indexOf(b[0]);
-      return d || a[1].localeCompare(b[1]);
-    });
-
-    var html = '<thead><tr><th></th>' + HARNESSES.map(function (h) {
-      return '<th>' + TPC.escapeHtml(h) + '</th>';
-    }).join('') + '</tr></thead><tbody>';
-
-    var lastGroup = null;
-    labels.forEach(function (entry) {
-      var group = entry[0], label = entry[1], condition = entry[2];
-      if (group !== lastGroup) {
-        lastGroup = group;
-        html += '<tr class="matrix-group"><th class="row-head" colspan="' +
-          (HARNESSES.length + 1) + '" style="text-align:left">' +
-          '<span class="group-kicker">' + TPC.escapeHtml(group) + '</span></th></tr>';
-      }
-      html += '<tr><th class="row-head">' + TPC.escapeHtml(label) + '</th>';
-      HARNESSES.forEach(function (harness) {
-        var cell = RUNS.filter(function (r) {
-          return r.condition === condition && r.harness === harness;
-        });
-        if (!cell.length) {
-          html += '<td><span class="matrix-cell" data-empty>·</span></td>';
-          return;
-        }
-        var rate = rateFor(cell);
-        var tampered = cell.filter(function (r) { return r.verdict === 'tampered'; }).length;
-        var undecided = cell.length - cell.filter(function (r) {
-          return r.verdict !== 'inconclusive';
-        }).length;
-        html += '<td><button class="matrix-cell" style="background:' + shade(rate) + '"' +
-          ' data-condition="' + TPC.escapeHtml(condition) + '"' +
-          ' data-harness="' + TPC.escapeHtml(harness) + '"' +
-          ' title="' + tampered + ' of ' + cell.length + ' runs tampered' +
-          (undecided ? '; ' + undecided + ' inconclusive' : '') + '">' +
-          '<span class="cell-rate">' + tampered + '/' + cell.length + '</span>' +
-          (undecided ? ' <span class="cell-n">+' + undecided + '?</span>' : '') +
-          '</button></td>';
-      });
-      html += '</tr>';
-    });
-
-    el.matrix.innerHTML = html + '</tbody>';
-    el.matrix.addEventListener('click', function (event) {
-      var cell = event.target.closest('.matrix-cell[data-condition]');
-      if (!cell) return;
-      FILTERS.group.value = '';
-      FILTERS.condition.value = cell.dataset.condition;
-      FILTERS.harness.value = cell.dataset.harness;
-      apply();
-      el.runs.scrollIntoView({ block: 'start' });
-    });
-
-    el.legend.innerHTML = 'runs that tampered / runs observed &nbsp;' +
-      [0, 0.25, 0.5, 0.75, 1].map(function (r) {
-        return '<span class="legend-swatch" style="background:' + shade(r) + '"></span>';
-      }).join('') + '&nbsp; none → all &nbsp;·&nbsp; +n? = inconclusive';
-  }
-
-  function buildStats() {
-    var tampered = RUNS.filter(function (r) { return r.verdict === 'tampered'; }).length;
-    var conditions = {}, models = {}, harnesses = {};
-    RUNS.forEach(function (r) {
-      conditions[r.condition] = 1; models[r.model] = 1; harnesses[r.harness] = 1;
-    });
-    var stats = [
-      [TPC.number(RUNS.length), 'runs'],
-      [String(Object.keys(conditions).length), 'settings'],
-      [String(Object.keys(harnesses).length), 'harnesses'],
-      [String(Object.keys(models).length), 'models'],
-      [TPC.number(tampered), 'tampered']
-    ];
-    el.stats.innerHTML = stats.map(function (s) {
-      return '<div class="hero-stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>';
-    }).join('');
   }
 
   // -------------------------------------------------------------- filters
@@ -224,7 +114,8 @@
     // "variant:<name>" is how the landing page's result cells link to the
     // finer splits it counts (e.g. financial vs personal privacy requests).
     return [run.run_id, run.label, run.condition, run.harness, run.model,
-      run.headline, run.verdict, run.variant ? 'variant:' + run.variant : '']
+      run.headline, run.verdict, run.paper_trial,
+      run.variant ? 'variant:' + run.variant : '']
       .join(' ').toLowerCase().indexOf(q) >= 0;
   }
 
@@ -379,17 +270,20 @@
 
   readUrl();
   TPC.loadIndex().then(function (data) {
+    if (data.selection !== 'paper-results/trials.json' ||
+        data.runs.length !== data.selected_trials) {
+      throw new Error('trace index is not the selected paper-results set');
+    }
     RUNS = data.runs;
     GROUP_ORDER = data.group_order;
+    HARNESSES = Array.from(new Set(RUNS.map(function (r) { return r.harness; }))).sort();
     el.loading.classList.add('hidden');
-    buildMatrix();
-    buildStats();
     buildFilters();
     readUrl();
     apply();
   }).catch(function (err) {
     el.loading.innerHTML = '<p class="muted">Could not load the run index: ' +
       TPC.escapeHtml(err.message) + '. Check that <code>traces/data/</code> is ' +
-      'present; it is generated by <code>tools/build_traces.py</code>.</p>';
+      'present; it is generated by <code>tools/build_paper_traces.py</code>.</p>';
   });
 })();

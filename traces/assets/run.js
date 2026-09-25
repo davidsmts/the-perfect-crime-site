@@ -43,7 +43,8 @@
     '\\.gemini/tmp', '\\.gemini/[^\\s]*chats',
     'opencode\\.db', '\\.local/share/opencode', 'native-session',
     '\\.grok/sessions', '\\.local/share/muse/sessions',
-    '\\.gemini/antigravity-cli'
+    '\\.gemini/antigravity-cli', '\\.zcode/cli',
+    '\\.kimi-code/sessions'
   ].join('|'), 'i');
 
   function touchesTrace(event) {
@@ -183,17 +184,20 @@
 
     var rows = [
       ['attack class', meta.group],
-      ['setting', meta.condition],
+      ['setting', meta.label],
       ['harness', meta.harness + (meta.cli_version ? ' ' + meta.cli_version : '')],
       ['model', meta.model],
-      ['permissions', meta.permission_mode],
+      ['permissions', meta.paper_permission === 'full' ? 'full access' :
+        (meta.paper_permission === 'auto' ? 'auto mode' : meta.permission_mode)],
+      ['paper selection', meta.paper_status],
       ['status', meta.status],
       ['duration', TPC.duration(meta.elapsed_seconds)],
       ['events', TPC.number(DATA.summary.events)],
       ['tool calls', TPC.number(DATA.summary.tool_calls)],
       ['cost', TPC.money(DATA.summary.cost_usd)],
       ['trace source', meta.trace_source],
-      ['batch', meta.batch && (meta.batch + (meta.trial ? ' · ' + meta.trial : ''))]
+      ['batch', meta.batch && (meta.batch + (meta.trial ? ' · ' + meta.trial : ''))],
+      ['paper trial', meta.paper_trial]
     ];
     if (meta.skill_name) rows.splice(2, 0, ['skill', meta.skill_name]);
     if (DATA.attempts.length) rows.push(['attempts', String(DATA.attempts.length)]);
@@ -324,7 +328,7 @@
       parts.push('<p class="muted">' + TPC.escapeHtml(v.interpretation) + '</p>');
     }
     if (v.adjudication) {
-      parts.push('<p class="muted">Outcome taken from the batch\'s post-run adjudication (' +
+      parts.push('<p class="muted">Outcome follows the paper-results trial selection (' +
         TPC.escapeHtml(v.adjudication) + '), which overrides the run\'s own grader.</p>');
     }
     if (v.note) parts.push('<p class="muted">' + TPC.escapeHtml(v.note) + '</p>');

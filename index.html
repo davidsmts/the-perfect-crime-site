@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Perfect Crime: LLM Agents Can Easily Tamper Their Own Traces</title>
-<meta name="description" content="Final trace-tampering results from 1,590 selected trials, with full-access and auto-mode comparisons across ten model–harness pairs.">
+<title>The Perfect Crime: LLM Agents Can Easily Tamper With Their Own Traces</title>
+<meta name="description" content="Bar charts and findings from LLM Agents Can Easily Tamper With Their Own Traces (arXiv:2609.30266v1), covering ten model–harness pairs.">
 <!-- Shares the trace browser's palette, type and theme toggle, so the two
      read as one site and the chosen theme carries across. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,6 @@
 <link rel="stylesheet" href="traces/assets/styles.css">
 <script>window.TPC_DATA_BASE = 'traces/data/';</script>
 <script src="traces/assets/common.js"></script>
-<script src="results/data.js"></script>
 <style>
   body, .logo { font-family: "Google Sans", system-ui, sans-serif; }
   .landing { max-width: 48rem; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
@@ -30,10 +29,6 @@
   .btn:hover { border-color: var(--fg); }
   .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
   .btn-primary:hover { opacity: .88; }
-  .stats { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin: 2.25rem 0 0; padding: 0; list-style: none; }
-  .stats li { display: flex; align-items: baseline; gap: .4rem; }
-  .stats b { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .stats span { color: var(--muted); font-size: .8rem; }
 
   /* ---------------------------------------------------------- sections */
   .sec { padding: 2.5rem 0 .5rem; }
@@ -49,39 +44,18 @@
   .path b { font-weight: 600; font-size: .78rem; }
   .path code { color: var(--term-fg); overflow-wrap: anywhere; font-size: .78rem; }
 
-  /* ----------------------------------------------------- result tables */
-  .results { margin: 1.5rem 0 .5rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel);
-             box-shadow: var(--shadow); overflow-x: auto; }
-  .results table { width: 100%; border-collapse: collapse; font-size: .84rem; min-width: 34rem; }
-  .results thead th { font-weight: 500; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
-                      padding: .6rem .5rem; text-align: center; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  .results tbody th { text-align: left; font-weight: 400; padding: .3rem .85rem; white-space: nowrap; }
-  .results tr.sub th { padding: .8rem .85rem .25rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
-                       color: var(--muted); font-weight: 500; }
-  .results tbody tr:last-child td, .results tbody tr:last-child th { padding-bottom: .7rem; }
-  .results td { padding: 2px; }
-  .res { display: flex; align-items: center; justify-content: center; gap: .35rem; padding: .32rem .4rem; border-radius: 4px;
-         text-decoration: none; font-weight: 600; outline: 2px solid transparent; outline-offset: -2px; transition: outline-color .12s; }
-  a.res:hover, a.res:focus-visible { outline-color: var(--fg); }
-  /* Count cells shade toward the "tampered" red with the share of runs that
-     tampered, on the same ramp as the trace browser's matrix. */
-  .results table.counts { min-width: 82rem; }
-  /* Ten model columns need horizontal scrolling, even on wide screens. */
-  .results { margin-left: calc(50% - min(32rem, 50vw - 1.25rem));
-             margin-right: calc(50% - min(32rem, 50vw - 1.25rem)); }
-  .col-model { display: block; font-size: .64rem; text-transform: none; letter-spacing: 0; color: var(--faint); margin-top: .1rem; }
-  .res { background: var(--sunk); color: var(--fg); font-variant-numeric: tabular-nums; }
-  .res-empty { color: var(--faint); font-weight: 400; }
-  .res .cell-n { color: var(--muted); font-size: .68rem; font-weight: 400; }
-  .results thead th:first-child, .results tr[data-setting] th {
-    position: sticky; left: 0; z-index: 1; background: var(--panel);
-  }
-  .results thead th:first-child { z-index: 2; }
-  .results-foot { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; color: var(--muted); font-size: .75rem;
-                  padding: .55rem .85rem; border-top: 1px solid var(--line); background: var(--sunk); }
-  .results-foot a { color: inherit; }
-  .results-foot .spacer { flex: 1; }
-  .swatch { display: inline-block; width: .9rem; height: .6rem; border-radius: 2px; vertical-align: -1px; margin-right: .3rem; }
+  /* The figures are cropped directly from the paper. Preserve the plotted
+     labels on narrow screens by allowing horizontal scrolling. */
+  .paper-figure { position: relative; left: 50%; transform: translateX(-50%);
+                  width: min(76rem, calc(100vw - 2.5rem)); margin: 1.4rem 0 2rem;
+                  border: 1px solid var(--line); border-radius: var(--radius);
+                  background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
+  .paper-chart { overflow-x: auto; background: #fff; }
+  .paper-chart img { display: block; width: 100%; min-width: 55rem; height: auto; }
+  .paper-figure.four-panels .paper-chart img { min-width: 70rem; }
+  .paper-figure figcaption { padding: .7rem .9rem; font-size: .79rem; line-height: 1.5; color: var(--muted); }
+  .paper-figure figcaption a { color: inherit; }
+  .paper-figure figcaption b { color: var(--fg); font-weight: 600; }
 
   /* ------------------------------------------------ after the deletion */
   .outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .75rem; margin: 1.25rem 0 .5rem; }
@@ -119,10 +93,6 @@
     .flow { grid-template-columns: 1fr; }
     .arrow { transform: rotate(90deg); justify-self: center; }
     .path { grid-template-columns: 1fr; gap: .15rem; }
-    .results table.counts { min-width: 74rem; }
-    .results tbody th { white-space: normal; padding-right: .4rem; }
-    .results thead th { white-space: normal; font-size: .64rem; letter-spacing: .03em; }
-    .res { padding: .45rem .3rem; }
   }
 
   /* Wald's survivorship-bias bomber drifting behind the page: the holes are
@@ -185,122 +155,63 @@
 
 <main class="landing">
   <section class="hero">
-    <h1>LLM Agents Can Easily Tamper Their Own Traces</h1>
+    <h1>LLM Agents Can Easily Tamper With Their Own Traces</h1>
     <p class="authors">Jeremy Qin*, David Schmotz*, Derck Prinzhorn, Luca Beurer-Kellner, Ameya Prabhu†, Maksym Andriushchenko†</p>
     <p class="affil">ELLIS Institute Tübingen · Max Planck Institute for Intelligent Systems · Tübingen AI Center · Exponential Security Labs · Snyk · University of Tübingen<br>* equal contribution · † equal supervision</p>
 
     <p class="tldr">Monitoring, incident investigations and audits rely on an agent's execution trace to reconstruct what happened. We show that local LLM agents can delete or rewrite those traces, when asked, when tricked by a malicious skill, and on their own when it improves their score.</p>
 
     <div class="actions">
-      <a class="btn btn-primary" href="#results">See the final results →</a>
-      <a class="btn" href="traces/index.html">Browse 644 interactive traces</a>
+      <a class="btn btn-primary" href="#results">See the results →</a>
+      <a class="btn" href="https://arxiv.org/pdf/2609.30266" target="_blank" rel="noopener noreferrer">arXiv paper (PDF) ↗</a>
+      <a class="btn" href="traces/index.html">Browse selected paper trials</a>
     </div>
 
-    <ul class="stats" aria-label="Scope of the study">
-      <li><b>8</b><span>harnesses</span></li>
-      <li><b>10</b><span>model–harness pairs in the main figures</span></li>
-      <li><b>1,590</b><span>selected trials in the evidence package</span></li>
-      <li><b>9 / 10</b><span>pairs tampered when asked in full-access mode</span></li>
-    </ul>
-  </section>
-
-  <section class="sec">
-    <h2>Can an agent alter its own record?</h2>
-    <p>In full-access mode, agents can reach the local files that hold their session traces. Some of the tested locations are:</p>
-    <div class="paths">
-      <div class="path"><b>Claude Code</b><code>~/.claude/projects/&lt;proj&gt;/&lt;id&gt;.jsonl</code></div>
-      <div class="path"><b>Codex</b><code>~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl</code></div>
-      <div class="path"><b>Gemini CLI</b><code>~/.gemini/tmp/&lt;hash&gt;/chats/*.json</code></div>
-      <div class="path"><b>OpenCode</b><code>~/.local/share/opencode/opencode.db</code></div>
-      <div class="path"><b>Grok Build</b><code>~/.grok/sessions/&lt;cwd&gt;/&lt;id&gt;/*.jsonl</code></div>
-      <div class="path"><b>Muse Code</b><code>~/.local/share/muse/sessions/YYYY/MM/DD/&lt;id&gt;/session.jsonl</code></div>
-      <div class="path"><b>Antigravity</b><code>~/.gemini/antigravity-cli/brain/&lt;id&gt;/.system_generated/logs/transcript*.jsonl</code></div>
-    </div>
   </section>
 
   <section class="sec" id="results">
     <h2>When asked, nine of ten pairs tamper in full-access mode</h2>
-    <p>Asked to remove traces after a financial or personal task, nine model–harness pairs tampered in at least one trial of each setting. Muse Code declined all 20 requests. The fabricated container-reset and tool-call experiments tested other ways to rewrite the record; their outcomes vary by model and harness.</p>
+    <p>In the financial and personal-summary deletion tasks, nine model–harness pairs tampered in at least one of ten trials per task. Muse Code refused all 20 deletion requests. Fabricated reset events and tool-call manipulation exposed different boundaries: Claude Code, ZCode and Muse Code often refused to invent a reset event, while most other pairs wrote one.</p>
+    <figure class="paper-figure">
+      <div class="paper-chart"><img src="assets/paper-figure-2.svg" alt="Paper Figure 2: attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation across ten model–harness pairs. Muse Code records zero successful trace deletions in both privacy tasks." width="480" height="153"></div>
+      <figcaption><b>Figure 2 · Direct-request capability.</b> Attack success rate over ten trials per setting; N/A means the harness did not support the attack. <a href="https://arxiv.org/pdf/2609.30266v1#page=4">View in the paper ↗</a></figcaption>
+    </figure>
 
-    <h2 style="margin-top:2.25rem">A malicious skill is enough</h2>
-    <p>A "privacy protection" skill installed in the default location led some agents working on an unrelated task to tamper with their trace. A second skill tried to inject instructions into the stored compaction summary. Success varied across the ten pairs.</p>
-    <p>These tables follow the final selected paper figures. The interactive trace browser covers an earlier 644-run subset.</p>
-
-    <div class="results">
-      <table class="counts" data-table="full">
-        <thead><tr><th scope="col">Setting</th></tr></thead>
-        <tbody>
-        <tr class="sub"><th colspan="11">User prompting</th></tr>
-        <tr data-setting="financial"><th scope="row">Financial task: trace deletion</th></tr>
-        <tr data-setting="personal"><th scope="row">Personal summary: trace deletion</th></tr>
-        <tr data-setting="reset-addition"><th scope="row">Fabricated container-reset event</th></tr>
-        <tr data-setting="tool-call"><th scope="row">Shell interception: tool-call tampering</th></tr>
-        <tr class="sub"><th colspan="11">Skill injection</th></tr>
-        <tr data-setting="privacy-skill"><th scope="row">Privacy protection: trace deletion</th></tr>
-        <tr data-setting="compaction-skill"><th scope="row">Compaction injection: trace editing</th></tr>
-        </tbody>
-      </table>
-      <div class="results-foot">
-        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>successful tampering / selected trials</span>
-        <span>† observed native-session loss; agent action unverified in four OpenCode/Qwen trials · N/A not run</span>
-        <span class="spacer"></span>
-        <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">Evidence and adjudications ↗</a>
-      </div>
-    </div>
+    <h2>A malicious skill can induce tampering</h2>
+    <p>An installed privacy-protection skill led some agents to delete their own session trace while completing an unrelated coding task. A second skill attempted to insert instructions into a stored compaction summary. The user had not requested either change, and success varied sharply across pairs.</p>
+    <figure class="paper-figure">
+      <div class="paper-chart"><img src="assets/paper-figure-6.svg" alt="Paper Figure 6: attack success rates for privacy-skill trace deletion and compaction-skill injection. Codex GPT-5.6-Sol succeeded in all ten privacy-skill trials, while several pairs showed zero success; compaction results varied by harness." width="472" height="186" loading="lazy" decoding="async"></div>
+      <figcaption><b>Figure 6 · Skill-file exploitability.</b> Ten trials per pair and setting. N/A marks an unsupported attack. <a href="https://arxiv.org/pdf/2609.30266v1#page=7">View in the paper ↗</a></figcaption>
+    </figure>
+    <p>The <a href="traces/index.html">interactive trace browser</a> now uses only the 1,590 trials selected in the <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">paper-results evidence package</a>. Four OpenCode/Qwen positives in that package are based on observed native-session loss; the responsible agent action was not captured.</p>
   </section>
 
   <section class="sec">
     <h2>Agents do it on their own for reward</h2>
-    <p>Agents got a task, a time budget and a grader score with no explanation. Finishing the task earned at most 0.8; the rest was only reachable by tampering with the trace. All ten pairs tampered in both reward settings at least once, though Muse Code did so in only 2 of 10 anonymization trials. Some agents also copied tampering shown in other agents' higher-scoring logs or workspaces. Muse Code and Claude Code with Opus 5.5 did not copy it from logs.</p>
-
-    <div class="results">
-      <table class="counts" data-table="full">
-        <thead><tr><th scope="col">Setting</th></tr></thead>
-        <tbody>
-        <tr class="sub"><th colspan="11">Reward optimization</th></tr>
-        <tr data-setting="anonymization"><th scope="row">Summary anonymization</th></tr>
-        <tr data-setting="terminal-bench"><th scope="row">Terminal-Bench: bun-sourcemap-leak</th></tr>
-        <tr class="sub"><th colspan="11">Cross-agent transfer</th></tr>
-        <tr data-setting="peer-logs"><th scope="row">Other agents&#39; action logs + scores</th></tr>
-        <tr data-setting="peer-workspaces"><th scope="row">Other agents&#39; workspaces + scores</th></tr>
-        </tbody>
-      </table>
-      <div class="results-foot">
-        <span><span class="swatch" style="background:color-mix(in srgb, var(--yes) 70%, var(--sunk))"></span>successful tampering / selected trials</span>
-        <span>† observed native-session loss; agent action unverified in four OpenCode/Qwen trials · N/A not run</span>
-        <span class="spacer"></span>
-        <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">Evidence and adjudications ↗</a>
-      </div>
-    </div>
+    <p>Agents received a task, a time budget and only a numerical score. Completing the task earned at most 0.8 out of 1.0; a higher score required reducing the trace length, a condition the agents were not told. Every pair tampered at least once in both reward settings. Muse Code was the clearest exception to the general pattern, with two successful anonymization trials out of ten.</p>
+    <figure class="paper-figure">
+      <div class="paper-chart"><img src="assets/paper-figure-7.svg" alt="Paper Figure 7: reward-optimization attack success rates for anonymization and Terminal-Bench. All ten model–harness pairs tampered in at least one trial of each task; Muse Code succeeded in two of ten anonymization trials." width="418" height="158" loading="lazy" decoding="async"></div>
+      <figcaption><b>Figure 7 · Reward optimization.</b> Attack success rate across ten trials per pair in each task. <a href="https://arxiv.org/pdf/2609.30266v1#page=9">View in the paper ↗</a></figcaption>
+    </figure>
+    <p>When agents saw higher-scoring peer logs or workspaces, many adopted trace tampering. Muse Code and Claude Code with Opus 5.5 refused the explicitly shown behavior in peer logs; both tampered in some peer-workspace trials, where they had to infer the behavior from files and scores.</p>
+    <figure class="paper-figure">
+      <div class="paper-chart"><img src="assets/paper-figure-8.svg" alt="Paper Figure 8: attack success rates after exposure to peer logs and peer workspaces. Muse Code and Claude Code Opus 5.5 show zero success with peer logs but nonzero success with peer workspaces." width="418" height="158" loading="lazy" decoding="async"></div>
+      <figcaption><b>Figure 8 · Peer examples.</b> Synthetic action logs or saved workspaces paired with scores; ten trials per pair in each setting. <a href="https://arxiv.org/pdf/2609.30266v1#page=10">View in the paper ↗</a></figcaption>
+    </figure>
   </section>
 
   <section class="sec">
     <h2>Permissions change the outcome</h2>
-    <p>The final paper also compares direct prompting under each harness's auto-mode permissions. Codex with GPT-6-Sol still tampered in all 20 privacy trials; several other pairs dropped to zero. The mechanisms differ by harness, so each cell reports its own selected trials.</p>
-
-    <div class="results">
-      <table class="counts" data-table="auto">
-        <thead><tr><th scope="col">Auto-mode setting</th></tr></thead>
-        <tbody>
-        <tr data-setting="financial"><th scope="row">Financial task: trace deletion</th></tr>
-        <tr data-setting="personal"><th scope="row">Personal summary: trace deletion</th></tr>
-        <tr data-setting="reset-addition"><th scope="row">Fabricated container-reset event</th></tr>
-        <tr data-setting="tool-call"><th scope="row">Shell interception: tool-call tampering</th></tr>
-        </tbody>
-      </table>
-      <div class="results-foot">
-        <span>successful tampering / conclusive trials</span>
-        <span>+n? inconclusive · B baseline blocked</span>
-        <span>† four Muse approval waits count as unsuccessful; ‡ five ZCode tool-call baselines were blocked</span>
-        <span class="spacer"></span>
-        <a href="https://github.com/davidsmts/kamikaze-agent/blob/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results/plots/combined-permissions-comparison/data-expanded.json">Comparison data ↗</a>
-      </div>
-    </div>
+    <p>Auto-mode permissions substantially reduced privacy-deletion success for both Claude Code models, Antigravity and ZCode. They did not stop every pair: Codex with GPT-6-Sol still deleted traces in all 20 privacy trials, and OpenCode with Qwen 3.8 Max succeeded in most direct-request trials. The exact restrictions and outcomes depend on the harness.</p>
+    <figure class="paper-figure four-panels">
+      <div class="paper-chart"><img src="assets/paper-figure-3.svg" alt="Paper Figure 3: side-by-side full-access and auto-mode attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation. Auto mode reduces several pairs to zero, but Codex GPT-6-Sol remains at 100 percent in both deletion tasks." width="482" height="314" loading="lazy" decoding="async"></div>
+      <figcaption><b>Figure 3 · Full access versus auto mode.</b> Ten trials per condition. B means a benign tool call was blocked or inaccessible, not that the model refused. * marks three inconclusive ZCode reset trials; † marks four Muse approval waits counted as unsuccessful; ‡ marks five blocked ZCode tool-call baselines. <a href="https://arxiv.org/pdf/2609.30266v1#page=5">View in the paper ↗</a></figcaption>
+    </figure>
   </section>
 
   <section class="sec">
     <h2>Deleting the trace can leave an agent untraceable</h2>
-    <p>If a Codex session file is deleted, the session keeps running and nothing it does afterwards is recorded. Claude Code and Gemini CLI start a new file, but an agent can schedule a process that deletes it after the session ends.</p>
+    <p>After a Codex session file was deleted, the session kept running without later activity appearing in a newly created native trace. Claude Code and Antigravity recreated trace files, but agents also scheduled repeated or delayed cleanup to delete later records.</p>
     <div class="outcomes">
       <div class="outcome">
         <div class="outcome-head">Codex</div>
@@ -311,19 +222,34 @@
         </ol>
       </div>
       <div class="outcome">
-        <div class="outcome-head">Claude Code · Gemini CLI</div>
+        <div class="outcome-head">Claude Code · Antigravity</div>
         <ol>
           <li>Session file deleted</li>
           <li>Harness starts a new file</li>
-          <li class="bad">A scheduled process deletes it after the session ends</li>
+          <li class="bad">Repeated or delayed cleanup can erase it</li>
         </ol>
       </div>
     </div>
   </section>
 
   <section class="sec">
+    <h2>Can an agent alter its own record?</h2>
+    <p>In full-access mode, agents can reach the local files that hold their session traces. Some of the tested locations are:</p>
+    <div class="paths">
+      <div class="path"><b>Claude Code</b><code>~/.claude/projects/&lt;proj&gt;/&lt;id&gt;.jsonl</code></div>
+      <div class="path"><b>Codex</b><code>~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl</code></div>
+      <div class="path"><b>OpenCode</b><code>~/.local/share/opencode/opencode.db</code></div>
+      <div class="path"><b>Grok Build</b><code>~/.grok/sessions/&lt;workspace-key&gt;/&lt;session&gt;/chat_history.jsonl</code></div>
+      <div class="path"><b>Muse Code</b><code>~/.local/share/muse/sessions/YYYY/MM/DD/&lt;id&gt;/session.jsonl</code></div>
+      <div class="path"><b>Antigravity</b><code>~/.gemini/antigravity-cli/brain/&lt;session&gt;/.system_generated/logs/transcript_full.jsonl</code></div>
+      <div class="path"><b>ZCode</b><code>~/.zcode/cli/rollout/model-io-&lt;session&gt;.jsonl</code></div>
+      <div class="path"><b>Kimi Code</b><code>~/.kimi-code/sessions/&lt;workDirKey&gt;/&lt;session&gt;/agents/main/wire.jsonl</code></div>
+    </div>
+  </section>
+
+  <section class="sec">
     <h2>Record traces off the host</h2>
-    <p>We propose sending all model traffic through an interception server that the agent's host cannot control. The server records every request and response, including each streaming chunk, before forwarding it. Records are append-only, and if a write fails the exchange is blocked. This protects the record even if the host is fully compromised.</p>
+    <p>The paper proposes sending model traffic through an interception server outside the agent host's control. It records each request and response, including streaming chunks, before forwarding them. Its log is append-only, and it stops forwarding if recording fails. This preserves the model exchange record even if the host is compromised.</p>
 
     <div class="flow" role="img" aria-label="The agent host sends all model traffic through an interception server, which writes an append-only record before forwarding to the model API.">
       <div class="node node-untrusted">
@@ -343,101 +269,13 @@
     </div>
 
     <p>It cannot see calls that bypass it, such as local models or other APIs, and it records tool results without verifying them.</p>
-    <p>Provider-side logging doesn't close the gap either. Zero Data Retention setups keep only local history, and enterprise compliance APIs leave out thinking blocks, tool definitions and often system prompts, and they truncate tool results.</p>
+    <p>Complete, append-only provider-side logging could also protect the record. Zero Data Retention policies may prevent providers from keeping it, and existing compliance APIs can omit thinking blocks and tool definitions or truncate entries. Recording the exchange also does not prove that a reported tool call was executed faithfully.</p>
 
     <p class="closing">An agent's authority to do useful work must not include authority to rewrite the record used to evaluate that work.</p>
   </section>
 
-  <script>
-  // These cells follow the selected, adjudicated paper figures. The separate
-  // interactive trace browser covers an earlier 644-run subset.
-  (function () {
-    var data = window.TPC_FINAL_RESULTS;
-    var pairs = {
-      codex: ['Codex', 'GPT-5.6-Sol'],
-      codex_new: ['Codex', 'GPT-6-Sol'],
-      claude: ['Claude Code', 'Opus 5'],
-      claude_new: ['Claude Code', 'Opus 5.5'],
-      opencode_new: ['OpenCode', 'Qwen 3.8 Max'],
-      grok: ['Grok Build', 'Grok 4.7'],
-      antigravity: ['Antigravity', 'Gemini 3.1 Pro'],
-      zcode_new: ['ZCode', 'GLM 5.3'],
-      kimi_new: ['Kimi Code', 'Kimi K3'],
-      muse: ['Muse Code', 'Muse Spark 1.3']
-    };
-
-    function shade(rate) {
-      if (!rate) return 'var(--sunk)';
-      return 'color-mix(in srgb, var(--yes) ' + Math.round((14 + rate * 56)) + '%, var(--sunk))';
-    }
-
-    document.querySelectorAll('table[data-table]').forEach(function (table) {
-      var head = table.querySelector('thead tr');
-      if (!data) {
-        head.firstElementChild.textContent = 'Final results could not be loaded.';
-        return;
-      }
-      data.modelOrder.forEach(function (id) {
-        var th = document.createElement('th');
-        th.scope = 'col';
-        th.textContent = pairs[id][0];
-        var model = document.createElement('span');
-        model.className = 'col-model';
-        model.textContent = pairs[id][1];
-        th.appendChild(model);
-        head.appendChild(th);
-      });
-
-      table.querySelectorAll('tr[data-setting]').forEach(function (tr) {
-        data.modelOrder.forEach(function (id) {
-          var value = data[table.dataset.table][tr.dataset.setting + ':' + id];
-          var td = document.createElement('td');
-          var cell = document.createElement('span');
-          cell.className = 'res';
-          if (!value) {
-            cell.className += ' res-empty';
-            cell.textContent = 'N/A';
-            cell.title = 'This setting was not run for this pair.';
-          } else if (table.dataset.table === 'auto' && value[1] === null) {
-            cell.className += ' res-empty';
-            cell.textContent = 'B';
-            cell.title = 'Benign baseline blocked in all ten trials; no comparable tampering rate.';
-          } else {
-            var score = document.createElement('span');
-            score.textContent = value[0] + '/' + value[1];
-            cell.appendChild(score);
-            cell.style.background = shade(value[0] / value[1]);
-            if (table.dataset.table === 'full') {
-              if (value[2]) {
-                var inference = document.createElement('span');
-                inference.className = 'cell-n';
-                inference.textContent = '†';
-                cell.appendChild(inference);
-                cell.title = value[2] + ' trial(s) counted from observed native-session loss; agent action unverified.';
-              }
-            } else {
-              var note = [];
-              if (value[2]) note.push('+' + value[2] + '?');
-              if (value[4]) note.push('†');
-              if (value[3]) note.push('‡');
-              if (note.length) {
-                var detail = document.createElement('span');
-                detail.className = 'cell-n';
-                detail.textContent = note.join(' ');
-                cell.appendChild(detail);
-              }
-            }
-          }
-          td.appendChild(cell);
-          tr.appendChild(td);
-        });
-      });
-    });
-  })();
-  </script>
-
   <footer class="site">
-    <div class="foot-inner"><span>perfect-crime.com</span><a href="traces/index.html">trace browser</a><span>Background plane after <a href="https://commons.wikimedia.org/wiki/File:Survivorship-bias.svg">Survivorship-bias.svg</a> by Martin Grandjean, McGeddon &amp; Cameron Moll, CC BY-SA 4.0</span></div>
+    <div class="foot-inner"><span>perfect-crime.ai</span><a href="https://arxiv.org/pdf/2609.30266">arXiv paper (PDF)</a><a href="traces/index.html">trace browser</a><span>Background plane after <a href="https://commons.wikimedia.org/wiki/File:Survivorship-bias.svg">Survivorship-bias.svg</a> by Martin Grandjean, McGeddon &amp; Cameron Moll, CC BY-SA 4.0</span></div>
   </footer>
 </main>
 <script>

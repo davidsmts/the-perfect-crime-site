@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Perfect Crime · trace browser</title>
-<meta name="description" content="Browse the agent execution traces behind the trace-tampering results: every run, every harness, every tool call.">
+<meta name="description" content="Browse the 1,590 selected trials in the paper-results evidence package for LLM Agents Can Easily Tamper With Their Own Traces.">
 <link rel="stylesheet" href="assets/styles.css">
 <script src="assets/common.js"></script>
 </head>
@@ -26,22 +26,10 @@
   </div>
 </header>
 
-<!-- Hero: the (attack × harness) matrix doubles as the primary navigation —
-     every cell sets the filter pair below it. -->
 <section class="page-head">
   <div class="container">
-    <h1>Agent traces</h1>
-    <p class="lede">Explore 644 earlier experiment runs as the harness recorded them: the model's
-    reasoning, each tool call and its output, the permission denials, and the
-    filesystem evidence of what happened to the trace file itself.
-    <a href="https://posttrainbench.com/">Inspired by PostTrainBench</a>.</p>
-    <div class="hero-body">
-      <div class="matrix-wrap">
-        <table class="matrix" id="matrix" aria-label="Runs by attack and harness"></table>
-        <div class="matrix-legend" id="matrix-legend"></div>
-      </div>
-      <aside class="hero-stats" id="hero-stats"></aside>
-    </div>
+    <h1>Selected paper trials</h1>
+    <p class="lede">Browse the 1,590 trials selected in the paper-results evidence package, including full-access and auto-mode runs. The list follows the package's adjudicated outcomes; some selected runs have incomplete or missing live streams after tampering. <a href="https://arxiv.org/pdf/2609.30266" target="_blank" rel="noopener noreferrer">Read the paper ↗</a></p>
   </div>
 </section>
 
@@ -90,8 +78,7 @@
   <div id="loading" class="empty-state"><p class="muted">Loading runs…</p></div>
 
   <footer class="site">
-    <p id="footer-note">Traces are shown as recorded. Tool output longer than 12,000
-    characters is elided in the middle; the raw run artifacts remain authoritative.</p>
+    <p id="footer-note">Only trials listed in the paper-results selection are shown. Tool output longer than 12,000 characters is elided in the middle; the published raw artifacts remain authoritative.</p>
   </footer>
 </main>
 
