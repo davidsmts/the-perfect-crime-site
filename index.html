@@ -76,19 +76,20 @@
   .path b { font-weight: 600; font-size: .78rem; }
   .path code { color: var(--term-fg); overflow-wrap: anywhere; font-size: .78rem; }
 
-  /* The figures are cropped directly from the paper. Preserve the plotted
-     labels on narrow screens by allowing horizontal scrolling. */
+  /* The figures sit on the page like paper plates rather than interface
+     cards. Preserve plotted labels on narrow screens with local scrolling. */
   .paper-figure { position: relative; left: 50%; transform: translateX(-50%);
-                  width: min(66rem, calc(100vw - 2.5rem)); margin: 1.4rem 0 2rem;
-                  border: 1px solid var(--line); border-radius: var(--radius);
-                  background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
-  .paper-chart { overflow-x: auto; background: #fff; }
-  .paper-chart img { display: block; width: 100%; min-width: 55rem; height: auto; }
-  .paper-figure figcaption { padding: .7rem .9rem; font-size: .79rem; line-height: 1.5; color: var(--muted); }
+                  width: min(58rem, calc(100vw - 2.5rem)); margin: 1.5rem 0 2.5rem; }
+  .paper-figure.four-panels { width: min(52rem, calc(100vw - 2.5rem)); }
+  .paper-chart { overflow-x: auto; background: #fff; border-radius: 2px; }
+  .paper-chart img { display: block; width: 100%; min-width: 46rem; height: auto; }
+  .paper-figure.four-panels .paper-chart img { min-width: 48rem; }
+  .paper-figure figcaption { padding: .65rem .1rem 0; font-size: .79rem; line-height: 1.5; color: var(--muted); }
   .paper-figure figcaption a { color: inherit; }
   .paper-figure figcaption b { color: var(--fg); font-weight: 600; }
   .trace-example { width: min(58rem, calc(100vw - 2.5rem)); margin-top: 2rem; }
   .trace-example .paper-chart img { min-width: 50rem; }
+  :root[data-theme="dark"] .paper-chart { outline: 1px solid var(--line); }
 
   /* ------------------------------------------------ after the deletion */
   .outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .75rem; margin: 1.25rem 0 .5rem; }
