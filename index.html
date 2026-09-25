@@ -15,7 +15,7 @@
 <script src="traces/assets/common.js"></script>
 <style>
   body, .logo { font-family: "Google Sans", system-ui, sans-serif; }
-  .landing { max-width: 48rem; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
+  .landing { max-width: 58rem; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
 
   /* ------------------------------------------------------------ hero */
   .hero { padding: 3.5rem 0 2.25rem; border-bottom: 1px solid var(--line); }
@@ -34,7 +34,7 @@
   .sec { padding: 2.5rem 0 .5rem; }
   .sec h2 { font: 500 1.5rem/1.25 "Google Sans", system-ui, sans-serif; margin: 0 0 .9rem; }
   .sec p:not([class]) { font: 16.5px/1.65 "Google Sans", system-ui, sans-serif; }
-  .sec p:not([class]) { margin: 0 0 1rem; max-width: 42rem; }
+  .sec p:not([class]) { margin: 0 0 1rem; }
   .sec code { font-size: .8em; }
 
   .paths { display: grid; gap: .5rem; margin: 1.25rem 0 0; }
@@ -47,12 +47,11 @@
   /* The figures are cropped directly from the paper. Preserve the plotted
      labels on narrow screens by allowing horizontal scrolling. */
   .paper-figure { position: relative; left: 50%; transform: translateX(-50%);
-                  width: min(76rem, calc(100vw - 2.5rem)); margin: 1.4rem 0 2rem;
+                  width: min(66rem, calc(100vw - 2.5rem)); margin: 1.4rem 0 2rem;
                   border: 1px solid var(--line); border-radius: var(--radius);
                   background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
   .paper-chart { overflow-x: auto; background: #fff; }
   .paper-chart img { display: block; width: 100%; min-width: 55rem; height: auto; }
-  .paper-figure.four-panels .paper-chart img { min-width: 70rem; }
   .paper-figure figcaption { padding: .7rem .9rem; font-size: .79rem; line-height: 1.5; color: var(--muted); }
   .paper-figure figcaption a { color: inherit; }
   .paper-figure figcaption b { color: var(--fg); font-weight: 600; }
