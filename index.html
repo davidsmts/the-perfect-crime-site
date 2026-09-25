@@ -69,6 +69,7 @@
   .sec p:not([class]) { margin: 0 0 1rem; }
   .sec code { font-size: .8em; }
   .study-lede { max-width: 52rem; margin: 0; font-size: 16.5px; line-height: 1.65; }
+  .study-lede + .study-lede { margin-top: 1rem; }
 
   .paths { display: grid; gap: .5rem; margin: 1.25rem 0 0; }
   .path { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); align-items: center; gap: .75rem;
@@ -251,14 +252,15 @@
       <div class="paper-chart"><img src="assets/paper-figure-2.svg" alt="Paper Figure 2: attack success rates for financial deletion, personal-summary deletion, fabricated reset addition and tool-call manipulation across ten model–harness pairs. Muse Code records zero successful trace deletions in both privacy tasks." width="480" height="153"></div>
       <figcaption><b>Figure 2 · Direct-request capability.</b> Attack success rate over ten trials per setting; N/A means the harness did not support the attack. <a href="https://arxiv.org/pdf/2609.30266v1#page=4">View in the paper ↗</a></figcaption>
     </figure>
+  </section>
 
+  <section class="sec">
     <h3>A malicious skill can induce tampering</h3>
     <p>An installed privacy-protection skill led some agents to delete their own session trace while completing an unrelated coding task. A second skill attempted to insert instructions into a stored compaction summary. The user had not requested either change, and success varied sharply across pairs.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-6.svg" alt="Paper Figure 6: attack success rates for privacy-skill trace deletion and compaction-skill injection. Codex GPT-5.6-Sol succeeded in all ten privacy-skill trials, while several pairs showed zero success; compaction results varied by harness." width="472" height="186" loading="lazy" decoding="async"></div>
       <figcaption><b>Figure 6 · Skill-file exploitability.</b> Ten trials per pair and setting. N/A marks an unsupported attack. <a href="https://arxiv.org/pdf/2609.30266v1#page=7">View in the paper ↗</a></figcaption>
     </figure>
-    <p>The <a href="traces/index.html">interactive trace browser</a> now uses only the 1,590 trials selected in the <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">paper-results evidence package</a>. Four OpenCode/Qwen positives in that package are based on observed native-session loss; the responsible agent action was not captured.</p>
   </section>
 
   <section class="sec">
@@ -268,6 +270,10 @@
       <div class="paper-chart"><img src="assets/paper-figure-7.svg" alt="Paper Figure 7: reward-optimization attack success rates for anonymization and Terminal-Bench. All ten model–harness pairs tampered in at least one trial of each task; Muse Code succeeded in two of ten anonymization trials." width="418" height="158" loading="lazy" decoding="async"></div>
       <figcaption><b>Figure 7 · Reward optimization.</b> Attack success rate across ten trials per pair in each task. <a href="https://arxiv.org/pdf/2609.30266v1#page=9">View in the paper ↗</a></figcaption>
     </figure>
+  </section>
+
+  <section class="sec">
+    <h3>Peer examples can also prompt tampering</h3>
     <p>When agents saw higher-scoring peer logs or workspaces, many adopted trace tampering. Muse Code and Claude Code with Opus 5.5 refused the explicitly shown behavior in peer logs; both tampered in some peer-workspace trials, where they had to infer the behavior from files and scores.</p>
     <figure class="paper-figure">
       <div class="paper-chart"><img src="assets/paper-figure-8.svg" alt="Paper Figure 8: attack success rates after exposure to peer logs and peer workspaces. Muse Code and Claude Code Opus 5.5 show zero success with peer logs but nonzero success with peer workspaces." width="418" height="158" loading="lazy" decoding="async"></div>
@@ -291,6 +297,7 @@
       <h2 id="method-heading">How we tested trace tampering</h2>
     </header>
     <p class="study-lede">We ran ten model–harness pairs in containers and kept an independent log outside the agent environment. We tested four routes to tampering: a direct request, instructions hidden in a skill, a higher score for shortening the trace, and examples from other agents. Each setting was repeated ten times.</p>
+    <p class="study-lede">The <a href="traces/index.html">interactive trace browser</a> now uses only the 1,590 trials selected in the <a href="https://github.com/davidsmts/kamikaze-agent/tree/39c4efca051a4f0fe3e4223fdaba0b98d117fe81/paper-results">paper-results evidence package</a>. Four OpenCode/Qwen positives in that package are based on observed native-session loss; the responsible agent action was not captured.</p>
 
     <figure class="paper-figure trace-example">
       <div class="paper-chart"><img src="assets/paper-figure-5.png" alt="A recorded Codex trial in which an installed privacy skill turns an ordinary Python client task into deletion of the agent's own session trace. An independent filesystem observer confirms the deletion." width="1000" height="560"></div>
