@@ -46,6 +46,7 @@
   .hero h1 { font: 500 clamp(2.1rem, 4.8vw, 3rem)/1.05 "Newsreader", Georgia, serif; letter-spacing: -.025em; margin: 0 0 1.1rem; }
   .authors { margin: 0; font-size: .92rem; }
   .affil { margin: .3rem 0 0; color: var(--muted); font-size: .78rem; }
+  .affil span { white-space: nowrap; }
   .tldr { font: 1.18rem/1.58 "Newsreader", Georgia, serif; margin: 1.75rem 0 0; }
   .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.75rem 0 0; }
   .btn { display: inline-flex; align-items: center; gap: .4rem; border-radius: var(--radius); padding: .5rem .9rem;
@@ -139,6 +140,7 @@
     .flow { grid-template-columns: 1fr; }
     .arrow { transform: rotate(90deg); justify-self: center; }
     .path { grid-template-columns: 1fr; gap: .15rem; }
+    .affil span { white-space: normal; }
   }
 
   /* Wald's survivorship-bias bomber drifting behind the page: the holes are
@@ -228,8 +230,8 @@
 <main class="landing">
   <section class="hero">
     <h1>LLM Agents Can Easily Tamper With Their Own Traces</h1>
-    <p class="authors">Jeremy Qin, David Schmotz, Derck Prinzhorn, Luca Beurer-Kellner, Ameya Prabhu, Maksym Andriushchenko</p>
-    <p class="affil">ELLIS Institute Tübingen · Max Planck Institute for Intelligent Systems · Tübingen AI Center · Exponential Security Labs · Snyk · University of Tübingen</p>
+    <p class="authors">Jeremy Qin<sup>1,2,3*</sup>, David Schmotz<sup>1,2,3*</sup>, Derck Prinzhorn<sup>4</sup>, Luca Beurer-Kellner<sup>5</sup>, Ameya Prabhu<sup>2,3,6†</sup>, Maksym Andriushchenko<sup>1,2,3†</sup></p>
+    <p class="affil"><span><sup>1</sup>ELLIS Institute Tübingen</span> · <span><sup>2</sup>Max Planck Institute for Intelligent Systems</span> · <span><sup>3</sup>Tübingen AI Center</span> · <span><sup>4</sup>Exponential Security Labs</span> · <span><sup>5</sup>Snyk</span> · <span><sup>6</sup>University of Tübingen</span><br>* equal contribution · † equal supervision</p>
 
     <p class="tldr">Monitoring, incident investigations and audits rely on an agent's execution trace to reconstruct what happened. We show that local LLM agents can delete or rewrite those traces, when asked, when tricked by a malicious skill, and on their own when it improves their score.</p>
 
