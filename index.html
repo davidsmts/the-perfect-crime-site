@@ -80,6 +80,11 @@
   .closing { margin: 2.5rem 0 0; padding: 1.5rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
              font: 500 1.2rem/1.5 "Google Sans", system-ui, sans-serif; text-align: center; }
 
+  .citation pre { margin: 1rem 0 0; padding: 1rem; overflow-x: auto; border: 1px solid var(--line-strong);
+                  border-radius: var(--radius); background: var(--term-bg); color: var(--term-fg);
+                  font: .8rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .citation code { font: inherit; }
+
   /* Matches the theme toggle beside it: same border, radius and height. */
   .nav-link { display: inline-flex; align-items: center; height: calc(.64rem + 17px); padding: 0 .75rem; margin-right: .2rem;
               border: 1px solid var(--line); border-radius: var(--radius); color: var(--fg);
@@ -272,6 +277,19 @@
     <p>Complete, append-only provider-side logging could also protect the record. Zero Data Retention policies may prevent providers from keeping it, and existing compliance APIs can omit thinking blocks and tool definitions or truncate entries. Recording the exchange also does not prove that a reported tool call was executed faithfully.</p>
 
     <p class="closing">An agent's authority to do useful work must not include authority to rewrite the record used to evaluate that work.</p>
+  </section>
+
+  <section class="sec citation" id="citation">
+    <h2>Cite this paper</h2>
+    <pre><code>@misc{qin2026llmagentseasilytamper,
+  title={LLM Agents Can Easily Tamper With Their Own Traces},
+  author={Jeremy Qin and David Schmotz and Derck Prinzhorn and Luca Beurer-Kellner and Ameya Prabhu and Maksym Andriushchenko},
+  year={2026},
+  eprint={2609.30266},
+  archivePrefix={arXiv},
+  primaryClass={cs.CR},
+  url={https://arxiv.org/abs/2609.30266},
+}</code></pre>
   </section>
 
   <footer class="site">
