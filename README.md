@@ -5,7 +5,8 @@ no dependencies: serve the folder and it works.
 
 ```
 index.html              the paper summary and bar charts from Figures 2, 3, 6, 7, 8
-assets/paper-figure-*.svg  vector charts cropped from the v1 PDF
+assets/paper-figure-*.svg  vector charts and trace figure cropped from the v1 PDF
+assets/paper-figure-5.png  raster fallback for the trace figure
 results/data.js         archived selected, adjudicated figure counts (generated)
 traces/index.html       catalog of selected paper trials, filters, run tables
 traces/run.html         one run: event timeline, trace evidence, grading
