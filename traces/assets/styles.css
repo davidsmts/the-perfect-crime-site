@@ -1,6 +1,4 @@
-/* Trace browser — extends the landing page's palette rather than inventing a
-   second one. Prose stays serif; anything that is chrome, data or code is
-   sans/mono so the two never get confused. */
+/* Trace browser — extends the landing page's palette and typography. */
 
 :root {
   --fg: #1a1a1a;
@@ -47,7 +45,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 15px/1.55 "Google Sans", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -81,12 +79,12 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
 }
 
 .logo {
-  font: 600 .95rem/1 "Newsreader", Georgia, serif;
+  font: 600 .95rem/1 "Google Sans", system-ui, sans-serif;
   letter-spacing: .01em;
   text-decoration: none;
 }
 
-.logo-sub { color: var(--muted); font: 400 .95rem/1 "Newsreader", Georgia, serif; text-decoration: none; }
+.logo-sub { color: var(--muted); font: 400 .95rem/1 "Google Sans", system-ui, sans-serif; text-decoration: none; }
 .topbar-spacer { flex: 1; }
 
 .theme-toggle {
@@ -110,7 +108,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
 .page-head { border-bottom: 1px solid var(--line); padding: 2rem 0 1.5rem; }
 
 .page-head h1 {
-  font: 500 2rem/1.1 "Newsreader", Georgia, serif;
+  font: 500 2rem/1.1 "Google Sans", system-ui, sans-serif;
   margin: 0 0 .35rem;
 }
 
@@ -118,7 +116,7 @@ code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, m
   color: var(--muted);
   max-width: 44rem;
   margin: 0 0 1.5rem;
-  font: 1.05rem/1.55 "Newsreader", Georgia, serif;
+  font: 1.05rem/1.55 "Google Sans", system-ui, sans-serif;
 }
 
 /* -------------------------------------------------------------- controls */
@@ -175,7 +173,7 @@ select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   user-select: none;
 }
 
-.group-head h2 { font: 600 .85rem/1.3 system-ui, sans-serif; margin: 0; letter-spacing: .01em; }
+.group-head h2 { font: 600 .85rem/1.3 "Google Sans", system-ui, sans-serif; margin: 0; letter-spacing: .01em; }
 .group-head .group-kicker { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
 .group-head .group-meta { margin-left: auto; color: var(--muted); font-size: .78rem; }
 .group[data-collapsed] .group-body { display: none; }
@@ -258,7 +256,7 @@ footer.site {
 
 .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: .9rem; box-shadow: var(--shadow); }
 
-.summary-title { font: 500 1.25rem/1.2 "Newsreader", Georgia, serif; margin: 0 0 .2rem; }
+.summary-title { font: 500 1.25rem/1.2 "Google Sans", system-ui, sans-serif; margin: 0 0 .2rem; }
 .summary-sub { color: var(--muted); font-size: .8rem; margin-bottom: .9rem; }
 
 .verdict-block { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: .75rem 0; margin-bottom: .8rem; }
@@ -472,7 +470,7 @@ details.thought .thought-body { color: var(--muted); font-size: .84rem; margin-t
 .op-delete { color: var(--yes); font-weight: 600; }
 .op-modify { color: var(--warn); }
 
-.prose { font: 16px/1.6 Georgia, "Times New Roman", serif; max-width: 42rem; }
+.prose { font: 16px/1.6 "Google Sans", system-ui, sans-serif; max-width: 42rem; }
 .prose pre { font: .8rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: .75rem; overflow-x: auto; white-space: pre-wrap; }
 
 /* ---------------------------------------------------------- narrow view */
