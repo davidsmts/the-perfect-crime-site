@@ -1,13 +1,11 @@
 /* Shared by the catalog and the run page: theme, data loading, formatting. */
 
 (function () {
-  var stored;
-  try { stored = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
-  if (!stored) {
-    stored = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark' : 'light';
-  }
-  document.documentElement.setAttribute('data-theme', stored);
+  var theme = 'light';
+  try {
+    if (localStorage.getItem('theme') === 'dark') theme = 'dark';
+  } catch (e) { /* private mode */ }
+  document.documentElement.setAttribute('data-theme', theme);
 
   document.addEventListener('DOMContentLoaded', function () {
     var button = document.getElementById('theme-toggle');

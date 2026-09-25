@@ -20,6 +20,7 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --fg: #e8e8e6;
   --muted: #9a9a96;
   --faint: #787874;
@@ -39,7 +40,7 @@
 
 * { box-sizing: border-box; }
 
-html { color-scheme: light dark; }
+html { color-scheme: light; }
 
 body {
   margin: 0;
